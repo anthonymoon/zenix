@@ -425,8 +425,8 @@
                     echo "[2/4] Configuring nix settings..."
                     sudo mkdir -p /mnt/etc/nix
                     sudo tee /mnt/etc/nix/nix.conf > /dev/null << 'EOF'
-          substituters = https://cache.nixos.org http://cachy.local
-          trusted-substituters = http://cachy.local
+          substituters = https://cache.nixos.org http://10.10.10.10:5000
+          trusted-substituters = http://10.10.10.10:5000
           trusted-public-keys = cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY= nixos-cache-key:7wraMUa5jdnDQ60R/c+jfCbRf23RUP8DuDUtU/czxPc=
           experimental-features = nix-command flakes
           max-jobs = auto
@@ -453,14 +453,14 @@
                         --flake "$INSTALL_FLAKE" \
                         --no-channel-copy \
                         --no-root-password \
-                        --option substituters "https://cache.nixos.org http://cachy.local" \
+                        --option substituters "https://cache.nixos.org http://10.10.10.10:5000" \
                         --option trusted-public-keys "cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY= nixos-cache-key:7wraMUa5jdnDQ60R/c+jfCbRf23RUP8DuDUtU/czxPc="
                     else
                       # Interactive install
                       sudo nixos-install \
                         --flake "$INSTALL_FLAKE" \
                         --no-channel-copy \
-                        --option substituters "https://cache.nixos.org http://cachy.local" \
+                        --option substituters "https://cache.nixos.org http://10.10.10.10:5000" \
                         --option trusted-public-keys "cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY= nixos-cache-key:7wraMUa5jdnDQ60R/c+jfCbRf23RUP8DuDUtU/czxPc="
                     fi
 

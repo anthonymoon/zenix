@@ -37,6 +37,11 @@
   networking = {
     useDHCP = lib.mkDefault true;
     firewall.enable = lib.mkDefault true;
+
+    # Add cachy.local to /etc/hosts for binary cache
+    extraHosts = ''
+      10.10.10.10 cachy.local
+    '';
   };
 
   # Enable basic services
