@@ -106,7 +106,7 @@
     # Logs
     rsyslog
     logrotate
-    journalctl
+    # journalctl is part of systemd (already included above)
 
     # Package management
     nix
