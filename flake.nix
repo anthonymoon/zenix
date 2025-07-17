@@ -312,14 +312,25 @@
           echo "===================="
           echo "Configuration: $CONFIG_NAME"
 
+          # Determine flake reference based on execution context
+          if [[ -f flake.nix ]]; then
+            # Running from local directory
+            FLAKE_REF=".#$CONFIG_NAME"
+          else
+            # Running from GitHub
+            FLAKE_REF="github:anthonymoon/nixos-fun#$CONFIG_NAME"
+          fi
+
           if [[ -n "$DISK" ]]; then
             echo "Disk: $DISK"
+            echo "Flake: $FLAKE_REF"
             exec sudo nix --extra-experimental-features nix-command --extra-experimental-features flakes run github:nix-community/disko#disko-install -- \
-              --flake ".#$CONFIG_NAME" --disk main "$DISK" --write-efi-boot-entries
+              --flake "$FLAKE_REF" --disk main "$DISK" --write-efi-boot-entries
           else
             echo "Using auto-detected disk"
+            echo "Flake: $FLAKE_REF"
             exec sudo nix --extra-experimental-features nix-command --extra-experimental-features flakes run github:nix-community/disko#disko-install -- \
-              --flake ".#$CONFIG_NAME" --write-efi-boot-entries
+              --flake "$FLAKE_REF" --write-efi-boot-entries
           fi
         ''}/bin/disko-install";
       };
