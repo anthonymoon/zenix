@@ -314,11 +314,11 @@
 
           if [[ -n "$DISK" ]]; then
             echo "Disk: $DISK"
-            exec sudo nix run github:nix-community/disko#disko-install -- \
+            exec sudo nix --extra-experimental-features nix-command --extra-experimental-features flakes run github:nix-community/disko#disko-install -- \
               --flake ".#$CONFIG_NAME" --disk main "$DISK" --write-efi-boot-entries
           else
             echo "Using auto-detected disk"
-            exec sudo nix run github:nix-community/disko#disko-install -- \
+            exec sudo nix --extra-experimental-features nix-command --extra-experimental-features flakes run github:nix-community/disko#disko-install -- \
               --flake ".#$CONFIG_NAME" --write-efi-boot-entries
           fi
         ''}/bin/disko-install";
@@ -339,7 +339,7 @@
           fi
 
           echo "Mounting system for configuration: $CONFIG_NAME"
-          exec sudo nix run github:nix-community/disko#disko-mount -- --flake ".#$CONFIG_NAME"
+          exec sudo nix --extra-experimental-features nix-command --extra-experimental-features flakes run github:nix-community/disko#disko-mount -- --flake ".#$CONFIG_NAME"
         ''}/bin/mount-system";
       };
     };
