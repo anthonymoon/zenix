@@ -17,15 +17,70 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
     
+    # Pre-commit hooks
+    pre-commit-hooks = {
+      url = "github:cachix/pre-commit-hooks.nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+    
     chaotic.url = "github:chaotic-cx/nyx/nyxpkgs-unstable";
     hyprland.url = "github:hyprwm/Hyprland";
     nixos-hardware.url = "github:NixOS/nixos-hardware";
   };
 
-  outputs = { self, nixpkgs, nixpkgs-stable, disko, lanzaboote, chaotic, hyprland, nixos-hardware, ... }@inputs:
+  outputs = { self, nixpkgs, nixpkgs-stable, disko, lanzaboote, pre-commit-hooks, chaotic, hyprland, nixos-hardware, ... }@inputs:
     let
       system = "x86_64-linux";
       lib = nixpkgs.lib;
+      
+      pkgs = nixpkgs.legacyPackages.${system};
+      
+      # Pre-commit hooks configuration
+      pre-commit-check = pre-commit-hooks.lib.${system}.run {
+        src = ./.;
+        hooks = {
+          alejandra.enable = true;
+          statix.enable = true;
+          deadnix.enable = true;
+          
+          # Custom hooks
+          nix-flake-check = {
+            enable = true;
+            name = "Nix flake check";
+            entry = "${pkgs.writeShellScript "nix-flake-check" ''
+              if [[ $(git diff --cached --name-only | grep -E "\.(nix|lock)$") ]]; then
+                echo "Running nix flake check..."
+                nix flake check --no-write-lock-file
+              fi
+            ''}";
+            files = "\\.(nix|lock)$";
+            pass_filenames = false;
+            always_run = true;
+          };
+          
+          nix-eval-check = {
+            enable = true;
+            name = "Check nixos config evaluation";
+            entry = "${pkgs.writeShellScript "nix-eval-check" ''
+              if [[ $(git diff --cached --name-only | grep -E "\.(nix)$") ]]; then
+                echo "Testing NixOS configuration evaluation..."
+                # Test with a sample configuration
+                if nix eval --no-write-lock-file --show-trace \
+                  --expr 'let flake = builtins.getFlake (toString ./.); in flake.lib.buildSystem "test.headless.stable"' \
+                  >/dev/null 2>&1; then
+                  echo "✓ NixOS configuration evaluation successful"
+                else
+                  echo "✗ NixOS configuration evaluation failed"
+                  exit 1
+                fi
+              fi
+            ''}";
+            files = "\\.nix$";
+            pass_filenames = false;
+            always_run = true;
+          };
+        };
+      };
       
       # Parse configuration name: hostname.profile1.profile2.profile3
       parseConfigName = name: 
@@ -118,6 +173,90 @@
         
         # Build function exposed for testing
         buildSystem = mkSystem;
+      };
+      
+      # Development shell with pre-commit hooks
+      devShells.${system}.default = pkgs.mkShell {
+        inherit (pre-commit-check) shellHook;
+        
+        packages = with pkgs; [
+          # Nix development tools
+          nixos-rebuild
+          nix-output-monitor
+          nvd
+          alejandra
+          statix
+          deadnix
+          
+          # Disko and installation tools
+          disko.packages.${system}.disko
+          util-linux
+          parted
+          smartmontools
+          
+          # System tools
+          git
+          jq
+          rsync
+          
+          # Filesystem tools
+          btrfs-progs
+          zfs
+          
+          # Monitoring and debugging
+          btop
+          iotop
+          
+          # TPM tools (for encryption)
+          tpm2-tools
+          
+          # Pre-commit
+          pre-commit
+        ];
+        
+        shellHook = ''
+          ${pre-commit-check.shellHook}
+          echo ""
+          echo "🚀 NixOS Multi-Host Development Environment"
+          echo "==========================================="
+          echo ""
+          echo "📦 Installation commands:"
+          echo "  ./scripts/install-interactive.sh    # Interactive installer"
+          echo "  ./scripts/install-host.sh <config>  # Direct installation"
+          echo ""
+          echo "🔧 Manual disko commands:"
+          echo "  sudo nix run github:nix-community/disko/latest#disko-install -- --flake .#hostname.profile"
+          echo ""
+          echo "🔄 System rebuild:"
+          echo "  sudo nixos-rebuild switch --flake .#hostname.profile"
+          echo ""
+          echo "📋 Available configurations:"
+          echo "  • hostname.kde.gaming.unstable"
+          echo "  • hostname.gnome.stable"
+          echo "  • hostname.headless.hardened"
+          echo "  • hostname.hyprland.gaming.chaotic"
+          echo ""
+          echo "🛠️  Development commands:"
+          echo "  nix flake update      # Update dependencies"
+          echo "  nix fmt              # Format code"
+          echo "  pre-commit run --all # Run all hooks"
+          echo "  git commit           # Commit with pre-commit checks"
+          echo ""
+          echo "🗄️  Available filesystems:"
+          echo "  • btrfs-single: Single disk Btrfs"
+          echo "  • btrfs-luks:   Encrypted Btrfs with TPM2"
+          echo "  • zfs-single:   Single disk ZFS"
+          echo "  • zfs-luks:     Encrypted ZFS with TPM2"
+          echo ""
+        '';
+      };
+      
+      # Formatter
+      formatter.${system} = pkgs.alejandra;
+      
+      # Checks
+      checks.${system} = {
+        pre-commit-check = pre-commit-check;
       };
     };
 }
