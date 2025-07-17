@@ -429,17 +429,31 @@
                     echo ""
                     echo "[3/4] Installing NixOS (this will take a while)..."
 
+                    # Ensure we're using the latest flake
+                    if [[ "$FLAKE_REF" == "github:anthonymoon/nixos-fun" ]]; then
+                      # Force update to latest
+                      INSTALL_FLAKE="github:anthonymoon/nixos-fun#$CONFIG_NAME"
+                    else
+                      INSTALL_FLAKE="$FLAKE_REF#$CONFIG_NAME"
+                    fi
+
+                    echo "Installing from: $INSTALL_FLAKE"
+
                     if [[ "$AUTO_MODE" == "yes" ]]; then
                       # Automated install with default password
                       echo -e "nixos\nnixos" | sudo nixos-install \
-                        --flake "$FLAKE_REF#$CONFIG_NAME" \
+                        --flake "$INSTALL_FLAKE" \
                         --no-channel-copy \
-                        --no-root-password
+                        --no-root-password \
+                        --option substituters "https://cache.nixos.org http://cachy.local" \
+                        --option trusted-public-keys "cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY= nixos-cache-key:7wraMUa5jdnDQ60R/c+jfCbRf23RUP8DuDUtU/czxPc="
                     else
                       # Interactive install
                       sudo nixos-install \
-                        --flake "$FLAKE_REF#$CONFIG_NAME" \
-                        --no-channel-copy
+                        --flake "$INSTALL_FLAKE" \
+                        --no-channel-copy \
+                        --option substituters "https://cache.nixos.org http://cachy.local" \
+                        --option trusted-public-keys "cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY= nixos-cache-key:7wraMUa5jdnDQ60R/c+jfCbRf23RUP8DuDUtU/czxPc="
                     fi
 
                     # Step 4: Post-install
