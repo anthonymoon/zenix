@@ -4,28 +4,31 @@
   pkgs,
   ...
 }: {
-  # Update to new service names (NixOS 24.11+)
+  # Enable X11 and Plasma 6
   services.xserver.enable = true;
   services.displayManager.sddm.enable = true;
   services.desktopManager.plasma6.enable = true;
 
-  # KDE packages - use kdePackages namespace for Qt6 versions
+  # Basic KDE packages - minimal set to avoid package conflicts
   environment.systemPackages = with pkgs; [
-    kdePackages.ark
+    # Core KDE applications
+    kdePackages.konsole
     kdePackages.dolphin
     kdePackages.kate
-    kdePackages.kdeconnect-kde
-    kdePackages.kdenlive
-    kdePackages.konsole
+    kdePackages.ark
     kdePackages.okular
-    plasma-browser-integration
     kdePackages.spectacle
+
+    # System utilities
+    firefox
+    git
+    vim
   ];
 
   # Enable KDE partition manager
   programs.partition-manager.enable = true;
 
-  # KDE Connect
+  # KDE Connect firewall (if needed)
   networking.firewall = {
     allowedTCPPortRanges = [
       {
