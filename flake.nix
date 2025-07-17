@@ -5,12 +5,24 @@
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
     nixpkgs-stable.url = "github:NixOS/nixpkgs/nixos-24.05";
     
+    # Disk management and installation
+    disko = {
+      url = "github:nix-community/disko/latest";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+    
+    # Secure boot support
+    lanzaboote = {
+      url = "github:nix-community/lanzaboote/v0.4.1";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+    
     chaotic.url = "github:chaotic-cx/nyx/nyxpkgs-unstable";
     hyprland.url = "github:hyprwm/Hyprland";
     nixos-hardware.url = "github:NixOS/nixos-hardware";
   };
 
-  outputs = { self, nixpkgs, nixpkgs-stable, chaotic, hyprland, nixos-hardware, ... }@inputs:
+  outputs = { self, nixpkgs, nixpkgs-stable, disko, lanzaboote, chaotic, hyprland, nixos-hardware, ... }@inputs:
     let
       system = "x86_64-linux";
       lib = nixpkgs.lib;
@@ -39,6 +51,9 @@
           specialArgs = { inherit inputs; };
           
           modules = [
+            # Disko module for disk management
+            disko.nixosModules.disko
+            
             # Core system configuration
             ({ config, ... }: {
               # Base system settings

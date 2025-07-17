@@ -6,15 +6,14 @@
   # Disable GUI completely
   services.xserver.enable = false;
   
-  # Boot to console
+  # Boot to console with serial support
   boot = {
-    kernelParams = [ "console=ttyS0,115200n8" "console=tty0" ];
+    kernelParams = [ "console=ttyS0,115200n8" "console=tty0" "console=ttyS0" ];
     loader.timeout = 2;
   };
   
   # Serial console
   services.getty.autologinUser = null;
-  boot.kernelParams = [ "console=ttyS0" ];
   
   # Disable sound
   sound.enable = false;

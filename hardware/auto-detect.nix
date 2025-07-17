@@ -42,19 +42,14 @@ in
       inherit cpuVendor hasNvidia hasAmdGpu hasIntelGpu isVirtual vmType;
     })
     
-    # Auto-import hardware profiles based on detection
-    ../profiles/${cpuVendor}-cpu
-    ../profiles/${if isVirtual then "virtual" else "physical"}
+    # Auto-import hardware modules based on detection
+    ./modules/cpu-${cpuVendor}.nix
+    ./modules/platform-${if isVirtual then "virtual" else "physical"}.nix
   ] ++
-  # GPU profiles (can have multiple)
-  (lib.optional hasNvidia ../profiles/nvidia) ++
-  (lib.optional hasAmdGpu ../profiles/amd-gpu) ++
-  (lib.optional hasIntelGpu ../profiles/intel-gpu) ++
-  # VM-specific profile
-  (lib.optional (vmType == "qemu-kvm") ../profiles/qemu-kvm) ++
-  (lib.optional (vmType == "vmware") ../profiles/vmware) ++
-  (lib.optional (vmType == "virtualbox") ../profiles/virtualbox) ++
-  (lib.optional (vmType == "hyperv") ../profiles/hyperv);
+  # GPU modules (can have multiple)
+  (lib.optional hasNvidia ./modules/gpu-nvidia.nix) ++
+  (lib.optional hasAmdGpu ./modules/gpu-amd.nix) ++
+  (lib.optional hasIntelGpu ./modules/gpu-intel.nix);
   
   # Export detection info for debugging
   system.nixos.tags = [
