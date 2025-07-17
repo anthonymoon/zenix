@@ -33,7 +33,7 @@
     zstd
 
     # Archives
-    tar
+    gnutar
     cpio
     zip
     unzip
