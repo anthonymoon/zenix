@@ -159,6 +159,12 @@
       # Example configuration for testing - ensures flake check passes
       "test.headless.stable" = mkSystem "test.headless.stable";
 
+      # Common configurations for easy installation
+      "workstation.kde.stable" = mkSystem "workstation.kde.stable";
+      "workstation.kde.unstable" = mkSystem "workstation.kde.unstable";
+      "workstation.gnome.stable" = mkSystem "workstation.gnome.stable";
+      "workstation.hyprland.stable" = mkSystem "workstation.hyprland.stable";
+
       # The __functor allows any hostname.profile.profile syntax
       __functor = self: configName: mkSystem configName;
     };
