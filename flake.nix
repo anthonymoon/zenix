@@ -164,13 +164,13 @@
     };
 
     # Disko configurations for installation
-    diskoConfigurations = let
-      mkDiskoConfig = device: {
+    diskoConfigurations = {
+      default = {
         disko.devices = {
           disk = {
             main = {
               type = "disk";
-              inherit device;
+              device = "/dev/sda";
               content = {
                 type = "gpt";
                 partitions = {
@@ -218,12 +218,6 @@
           };
         };
       };
-    in {
-      # Default configuration that can be used with any device
-      default = mkDiskoConfig "/dev/sda";
-
-      # Allow dynamic device selection
-      __functor = self: device: mkDiskoConfig device;
     };
 
     # Helper functions
