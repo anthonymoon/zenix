@@ -164,10 +164,10 @@
       "workstation.kde.unstable" = mkSystem "workstation.kde.unstable";
       "workstation.gnome.stable" = mkSystem "workstation.gnome.stable";
       "workstation.hyprland.stable" = mkSystem "workstation.hyprland.stable";
-
-      # The __functor allows any hostname.profile.profile syntax
-      __functor = self: configName: mkSystem configName;
     };
+
+    # Dynamic configuration builder (separate from nixosConfigurations to avoid flake check issues)
+    lib.buildSystem = mkSystem;
 
     # Disko configurations for installation
     diskoConfigurations = {
