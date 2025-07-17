@@ -22,7 +22,7 @@
   # Disable unnecessary hardware support
   hardware = {
     bluetooth.enable = false;
-    opengl.enable = false;
+    graphics.enable = false;
   };
 
   # Headless services
