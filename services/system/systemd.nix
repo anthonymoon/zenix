@@ -39,7 +39,7 @@
   services.fstrim.enable = true;
 
   # Printing service
-  services.printing.enable = true;
+  services.printing.enable = lib.mkDefault true;
 
   # LLDP service
   services.lldpd.enable = true;
