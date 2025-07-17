@@ -154,8 +154,11 @@
           ++ (map (profile: ./profiles + "/${profile}") profiles);
       };
   in {
-    # Dynamic configurations only - no hardcoded entries
+    # Dynamic configurations with example configurations for validation
     nixosConfigurations = {
+      # Example configuration for testing - ensures flake check passes
+      "test.headless.stable" = mkSystem "test.headless.stable";
+
       # The __functor allows any hostname.profile.profile syntax
       __functor = self: configName: mkSystem configName;
     };
@@ -219,41 +222,126 @@
         pre-commit
       ];
 
-      shellHook = ''
-        ${pre-commit-check.shellHook}
-        echo ""
-        echo "🚀 NixOS Multi-Host Development Environment"
-        echo "==========================================="
-        echo ""
-        echo "📦 Installation commands:"
-        echo "  ./scripts/install-interactive.sh    # Interactive installer"
-        echo "  ./scripts/install-host.sh <config>  # Direct installation"
-        echo ""
-        echo "🔧 Manual disko commands:"
-        echo "  sudo nix run github:nix-community/disko/latest#disko-install -- --flake .#hostname.profile"
-        echo ""
-        echo "🔄 System rebuild:"
-        echo "  sudo nixos-rebuild switch --flake .#hostname.profile"
-        echo ""
-        echo "📋 Available configurations:"
-        echo "  • hostname.kde.gaming.unstable"
-        echo "  • hostname.gnome.stable"
-        echo "  • hostname.headless.hardened"
-        echo "  • hostname.hyprland.gaming.chaotic"
-        echo ""
-        echo "🛠️  Development commands:"
-        echo "  nix flake update      # Update dependencies"
-        echo "  nix fmt              # Format code"
-        echo "  pre-commit run --all # Run all hooks"
-        echo "  git commit           # Commit with pre-commit checks"
-        echo ""
-        echo "🗄️  Available filesystems:"
-        echo "  • btrfs-single: Single disk Btrfs"
-        echo "  • btrfs-luks:   Encrypted Btrfs with TPM2"
-        echo "  • zfs-single:   Single disk ZFS"
-        echo "  • zfs-luks:     Encrypted ZFS with TPM2"
-        echo ""
-      '';
+      shellHook =
+        pre-commit-check.shellHook
+        + ''
+          echo ""
+          echo "🚀 NixOS Multi-Host Development Environment"
+          echo "==========================================="
+          echo ""
+          echo "📦 Installation commands:"
+          echo "  ./scripts/install-interactive.sh    # Interactive installer"
+          echo "  ./scripts/install-host.sh <config>  # Direct installation"
+          echo ""
+          echo "🔧 Manual disko commands:"
+          echo "  sudo nix run github:nix-community/disko/latest#disko-install -- --flake .#hostname.profile"
+          echo ""
+          echo "🔄 System rebuild:"
+          echo "  sudo nixos-rebuild switch --flake .#hostname.profile"
+          echo ""
+          echo "📋 Available configurations:"
+          echo "  • hostname.kde.gaming.unstable"
+          echo "  • hostname.gnome.stable"
+          echo "  • hostname.headless.hardened"
+          echo "  • hostname.hyprland.gaming.chaotic"
+          echo ""
+          echo "🛠️  Development commands:"
+          echo "  nix flake update      # Update dependencies"
+          echo "  nix fmt              # Format code"
+          echo "  pre-commit run --all # Run all hooks"
+          echo "  git commit           # Commit with pre-commit checks"
+          echo ""
+          echo "🗄️  Available filesystems:"
+          echo "  • btrfs-single: Single disk Btrfs"
+          echo "  • btrfs-luks:   Encrypted Btrfs with TPM2"
+          echo "  • zfs-single:   Single disk ZFS"
+          echo "  • zfs-luks:     Encrypted ZFS with TPM2"
+          echo ""
+        '';
+    };
+
+    # Apps for installation
+    apps.${system} = {
+      disko-install = {
+        type = "app";
+        program = "${pkgs.writeShellScriptBin "disko-install" ''
+          #!/usr/bin/env bash
+          set -euo pipefail
+
+          # Parse arguments
+          CONFIG_NAME=""
+          DISK=""
+
+          while [[ $# -gt 0 ]]; do
+            case $1 in
+              --host)
+                CONFIG_NAME="$2"
+                shift 2
+                ;;
+              --disk-config)
+                # Skip disk config parameter (we'll use the config name)
+                shift 2
+                ;;
+              --disk)
+                DISK="$2"
+                shift 2
+                ;;
+              *)
+                if [[ -z "$CONFIG_NAME" ]]; then
+                  CONFIG_NAME="$1"
+                elif [[ -z "$DISK" ]]; then
+                  DISK="$1"
+                fi
+                shift
+                ;;
+            esac
+          done
+
+          if [[ -z "$CONFIG_NAME" ]]; then
+            echo "Usage: $0 <config-name> [disk-device]"
+            echo "Example: $0 cachy.kde.gaming.unstable /dev/sda"
+            echo "Available configs:"
+            echo "  • hostname.kde.gaming.unstable"
+            echo "  • hostname.gnome.stable"
+            echo "  • hostname.hyprland.gaming.chaotic"
+            echo "  • hostname.headless.hardened"
+            exit 1
+          fi
+
+          echo "NixOS Disko Installer"
+          echo "===================="
+          echo "Configuration: $CONFIG_NAME"
+
+          if [[ -n "$DISK" ]]; then
+            echo "Disk: $DISK"
+            exec sudo nix run github:nix-community/disko#disko-install -- \
+              --flake ".#$CONFIG_NAME" --disk main "$DISK" --write-efi-boot-entries
+          else
+            echo "Using auto-detected disk"
+            exec sudo nix run github:nix-community/disko#disko-install -- \
+              --flake ".#$CONFIG_NAME" --write-efi-boot-entries
+          fi
+        ''}/bin/disko-install";
+      };
+
+      mount-system = {
+        type = "app";
+        program = "${pkgs.writeShellScriptBin "mount-system" ''
+          #!/usr/bin/env bash
+          set -euo pipefail
+
+          CONFIG_NAME="''${1:-}"
+
+          if [[ -z "$CONFIG_NAME" ]]; then
+            echo "Usage: $0 <config-name>"
+            echo "Example: $0 cachy.kde.gaming.unstable"
+            exit 1
+          fi
+
+          echo "Mounting system for configuration: $CONFIG_NAME"
+          exec sudo nix run github:nix-community/disko#disko-mount -- --flake ".#$CONFIG_NAME"
+        ''}/bin/mount-system";
+      };
     };
 
     # Formatter
