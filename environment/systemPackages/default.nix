@@ -123,7 +123,7 @@
     # Security basics
     sudo
     openssl
-    ca-certificates
+    cacert
     gnupg
 
     # Service management
