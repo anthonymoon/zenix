@@ -68,7 +68,7 @@
     lsof
     strace
     sysstat
-    dstat
+    dool
 
     # Hardware tools
     pciutils
