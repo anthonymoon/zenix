@@ -14,11 +14,11 @@
     kdePackages.ark
     kdePackages.dolphin
     kdePackages.kate
-    kdePackages.kdeconnect
+    kdePackages.kdeconnect-kde
     kdePackages.kdenlive
     kdePackages.konsole
     kdePackages.okular
-    kdePackages.plasma-browser-integration
+    plasma-browser-integration
     kdePackages.spectacle
   ];
 
