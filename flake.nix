@@ -141,7 +141,7 @@
           ++ [
             # Core system modules
             ./users
-            ./environment/systemPackages
+            # ./environment/systemPackages  # Disabled temporarily due to package conflicts
             ./fonts/packages.nix
             ./nixpkgs
 
