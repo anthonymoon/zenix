@@ -244,8 +244,7 @@
         "workstation.kde.stable"
       ];
 
-      # Build function exposed for testing
-      buildSystem = mkSystem;
+      # buildSystem moved to lib.buildSystem above
     };
 
     # Development shell with pre-commit hooks
