@@ -163,6 +163,69 @@
       __functor = self: configName: mkSystem configName;
     };
 
+    # Disko configurations for installation
+    diskoConfigurations = let
+      mkDiskoConfig = device: {
+        disko.devices = {
+          disk = {
+            main = {
+              type = "disk";
+              inherit device;
+              content = {
+                type = "gpt";
+                partitions = {
+                  ESP = {
+                    priority = 1;
+                    name = "ESP";
+                    start = "1M";
+                    end = "1G";
+                    type = "EF00";
+                    content = {
+                      type = "filesystem";
+                      format = "vfat";
+                      mountpoint = "/boot";
+                      mountOptions = ["umask=0077"];
+                    };
+                  };
+                  root = {
+                    size = "100%";
+                    content = {
+                      type = "btrfs";
+                      extraArgs = ["-f"];
+                      subvolumes = {
+                        "@" = {
+                          mountpoint = "/";
+                          mountOptions = ["compress=zstd" "noatime"];
+                        };
+                        "@home" = {
+                          mountpoint = "/home";
+                          mountOptions = ["compress=zstd" "noatime"];
+                        };
+                        "@nix" = {
+                          mountpoint = "/nix";
+                          mountOptions = ["compress=zstd" "noatime"];
+                        };
+                        "@swap" = {
+                          mountpoint = "/.swap";
+                          swap.swapfile.size = "16G";
+                        };
+                      };
+                    };
+                  };
+                };
+              };
+            };
+          };
+        };
+      };
+    in {
+      # Default configuration that can be used with any device
+      default = mkDiskoConfig "/dev/sda";
+
+      # Allow dynamic device selection
+      __functor = self: device: mkDiskoConfig device;
+    };
+
     # Helper functions
     lib = {
       # List available software profiles
@@ -265,73 +328,159 @@
       disko-install = {
         type = "app";
         program = "${pkgs.writeShellScriptBin "disko-install" ''
-          #!/usr/bin/env bash
-          set -euo pipefail
+                    #!/usr/bin/env bash
+                    set -euo pipefail
 
-          # Parse arguments
-          CONFIG_NAME=""
-          DISK=""
+                    # Parse arguments
+                    CONFIG_NAME=""
+                    DISK=""
+                    AUTO_MODE=""
 
-          while [[ $# -gt 0 ]]; do
-            case $1 in
-              --host)
-                CONFIG_NAME="$2"
-                shift 2
-                ;;
-              --disk-config)
-                # Skip disk config parameter (we'll use the config name)
-                shift 2
-                ;;
-              --disk)
-                DISK="$2"
-                shift 2
-                ;;
-              *)
-                if [[ -z "$CONFIG_NAME" ]]; then
-                  CONFIG_NAME="$1"
-                elif [[ -z "$DISK" ]]; then
-                  DISK="$1"
-                fi
-                shift
-                ;;
-            esac
-          done
+                    while [[ $# -gt 0 ]]; do
+                      case $1 in
+                        --auto)
+                          AUTO_MODE="yes"
+                          shift
+                          ;;
+                        --host)
+                          CONFIG_NAME="$2"
+                          shift 2
+                          ;;
+                        --disk)
+                          DISK="$2"
+                          shift 2
+                          ;;
+                        *)
+                          if [[ -z "$CONFIG_NAME" ]]; then
+                            CONFIG_NAME="$1"
+                          elif [[ -z "$DISK" ]]; then
+                            DISK="$1"
+                          fi
+                          shift
+                          ;;
+                      esac
+                    done
 
-          if [[ -z "$CONFIG_NAME" ]]; then
-            echo "Usage: $0 <config-name> [disk-device]"
-            echo "Example: $0 cachy.kde.gaming.unstable /dev/sda"
-            echo "Available configs:"
-            echo "  • hostname.kde.gaming.unstable"
-            echo "  • hostname.gnome.stable"
-            echo "  • hostname.hyprland.gaming.chaotic"
-            echo "  • hostname.headless.hardened"
-            exit 1
-          fi
+                    if [[ -z "$CONFIG_NAME" ]]; then
+                      echo "Usage: $0 <config-name> [disk-device] [--auto]"
+                      echo "Example: $0 workstation.kde.stable /dev/sda --auto"
+                      echo ""
+                      echo "Available configs:"
+                      echo "  • hostname.kde.gaming.unstable"
+                      echo "  • hostname.gnome.stable"
+                      echo "  • hostname.hyprland.gaming.chaotic"
+                      echo "  • hostname.headless.hardened"
+                      echo ""
+                      echo "Options:"
+                      echo "  --auto  Run fully automated (no prompts)"
+                      exit 1
+                    fi
 
-          echo "NixOS Disko Installer"
-          echo "===================="
-          echo "Configuration: $CONFIG_NAME"
+                    # Default disk if not specified
+                    DISK="''${DISK:-/dev/sda}"
 
-          # Determine flake reference based on execution context
-          if [[ -f flake.nix ]]; then
-            # Running from local directory
-            FLAKE_REF=".#$CONFIG_NAME"
-          else
-            # Running from GitHub
-            FLAKE_REF="github:anthonymoon/nixos-fun#$CONFIG_NAME"
-          fi
+                    echo "╔════════════════════════════════════════════════════════════╗"
+                    echo "║                   NixOS Automated Installer                 ║"
+                    echo "╚════════════════════════════════════════════════════════════╝"
+                    echo ""
+                    echo "Configuration: $CONFIG_NAME"
+                    echo "Disk: $DISK"
+                    echo ""
 
-          if [[ -n "$DISK" ]]; then
-            echo "Disk: $DISK"
-            echo "Flake: $FLAKE_REF"
-            exec sudo nix --extra-experimental-features nix-command --extra-experimental-features flakes run github:nix-community/disko#disko-install -- \
-              --flake "$FLAKE_REF" --disk main "$DISK" --write-efi-boot-entries
-          else
-            echo "Using auto-detected disk"
-            echo "Flake: $FLAKE_REF"
-            exec sudo nix --extra-experimental-features nix-command --extra-experimental-features flakes run github:nix-community/disko#disko-install -- \
-              --flake "$FLAKE_REF" --write-efi-boot-entries
-          fi
+                    # Determine flake reference
+                    if [[ -f flake.nix ]]; then
+                      FLAKE_REF="."
+                      DISKO_FLAKE_REF="."
+                    else
+                      FLAKE_REF="github:anthonymoon/nixos-fun"
+                      DISKO_FLAKE_REF="github:anthonymoon/nixos-fun"
+                    fi
+
+                    if [[ "$AUTO_MODE" != "yes" ]]; then
+                      echo "[WARNING] This will COMPLETELY ERASE $DISK!"
+                      echo -n "Are you sure? (yes/NO): "
+                      read -r CONFIRM
+                      if [[ "$CONFIRM" != "yes" ]]; then
+                        echo "Aborted."
+                        exit 1
+                      fi
+                    else
+                      echo "[AUTO MODE] Starting automated installation in 5 seconds..."
+                      echo "[WARNING] This will ERASE $DISK!"
+                      sleep 5
+                    fi
+
+                    # Step 1: Partition with disko
+                    echo ""
+                    echo "[1/4] Partitioning disk with disko..."
+                    sudo nix run github:nix-community/disko -- \
+                      --mode disko \
+                      --flake "$DISKO_FLAKE_REF#default" \
+                      --arg device "\"$DISK\""
+
+                    # Step 2: Configure nix in target system
+                    echo ""
+                    echo "[2/4] Configuring nix settings..."
+                    sudo mkdir -p /mnt/etc/nix
+                    sudo tee /mnt/etc/nix/nix.conf > /dev/null << 'EOF'
+          substituters = https://cache.nixos.org http://cachy.local
+          trusted-substituters = http://cachy.local
+          trusted-public-keys = cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY= nixos-cache-key:7wraMUa5jdnDQ60R/c+jfCbRf23RUP8DuDUtU/czxPc=
+          experimental-features = nix-command flakes
+          max-jobs = auto
+          cores = 0
+          EOF
+
+                    # Step 3: Install NixOS
+                    echo ""
+                    echo "[3/4] Installing NixOS (this will take a while)..."
+
+                    if [[ "$AUTO_MODE" == "yes" ]]; then
+                      # Automated install with default password
+                      echo -e "nixos\nnixos" | sudo nixos-install \
+                        --flake "$FLAKE_REF#$CONFIG_NAME" \
+                        --no-channel-copy \
+                        --no-root-password
+                    else
+                      # Interactive install
+                      sudo nixos-install \
+                        --flake "$FLAKE_REF#$CONFIG_NAME" \
+                        --no-channel-copy
+                    fi
+
+                    # Step 4: Post-install
+                    echo ""
+                    echo "[4/4] Installation complete!"
+
+                    if [[ "$AUTO_MODE" == "yes" ]]; then
+                      # Set up default user in auto mode
+                      sudo nixos-enter --root /mnt -c "
+                        useradd -m -G wheel,networkmanager,video,audio user || true
+                        echo 'user:user' | chpasswd
+                        echo 'root:nixos' | chpasswd
+                      " 2>/dev/null || true
+
+                      echo ""
+                      echo "╔════════════════════════════════════════════════════════════╗"
+                      echo "║                    Installation Complete!                   ║"
+                      echo "╠════════════════════════════════════════════════════════════╣"
+                      echo "║ Default credentials:                                       ║"
+                      echo "║   root password: nixos                                     ║"
+                      echo "║   user password: user                                      ║"
+                      echo "╠════════════════════════════════════════════════════════════╣"
+                      echo "║ Rebooting in 10 seconds...                                ║"
+                      echo "╚════════════════════════════════════════════════════════════╝"
+                      sleep 10
+                      sudo reboot
+                    else
+                      echo ""
+                      echo "╔════════════════════════════════════════════════════════════╗"
+                      echo "║                    Installation Complete!                   ║"
+                      echo "╠════════════════════════════════════════════════════════════╣"
+                      echo "║ You can now reboot into your new system:                  ║"
+                      echo "║   sudo reboot                                              ║"
+                      echo "╚════════════════════════════════════════════════════════════╝"
+                    fi
         ''}/bin/disko-install";
       };
 
