@@ -22,9 +22,8 @@
     package = lib.mkDefault config.boot.kernelPackages.nvidiaPackages.stable;
   };
 
-  hardware.opengl = {
+  hardware.graphics = {
     enable = true;
-    driSupport = true;
-    driSupport32Bit = lib.mkDefault true;
+    enable32Bit = lib.mkDefault true;
   };
 }

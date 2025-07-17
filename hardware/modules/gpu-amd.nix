@@ -14,14 +14,11 @@
 
   services.xserver.videoDrivers = lib.mkBefore ["amdgpu"];
 
-  hardware.opengl = {
+  hardware.graphics = {
     enable = true;
-    driSupport = true;
-    driSupport32Bit = lib.mkDefault true;
+    enable32Bit = lib.mkDefault true;
     extraPackages = with pkgs; [
       amdvlk
-      rocm-opencl-icd
-      rocm-opencl-runtime
     ];
     extraPackages32 = with pkgs; [
       driversi686Linux.amdvlk

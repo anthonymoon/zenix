@@ -4,38 +4,54 @@
   pkgs,
   ...
 }: let
-  # Read system information
-  cpuinfo = builtins.readFile /proc/cpuinfo;
+  # Safe file reading that handles pure evaluation mode
+  safeReadFile = path: default: let
+    result = builtins.tryEval (builtins.readFile path);
+  in
+    if result.success
+    then result.value
+    else default;
 
-  # CPU Detection
+  # Safe path checking for pure evaluation
+  safePathExists = path: let
+    result = builtins.tryEval (builtins.pathExists path);
+  in
+    if result.success
+    then result.value
+    else false;
+
+  # Read system information safely
+  cpuinfo = safeReadFile /proc/cpuinfo "";
+
+  # CPU Detection with fallback
   cpuVendor =
-    if lib.strings.hasInfix "GenuineIntel" cpuinfo
+    if cpuinfo != "" && lib.strings.hasInfix "GenuineIntel" cpuinfo
     then "intel"
-    else if lib.strings.hasInfix "AuthenticAMD" cpuinfo
+    else if cpuinfo != "" && lib.strings.hasInfix "AuthenticAMD" cpuinfo
     then "amd"
     else "generic";
 
-  # GPU Detection (check for kernel modules)
+  # GPU Detection (check for kernel modules) with safe path checking
   hasNvidia =
-    builtins.pathExists /sys/module/nvidia
-    || builtins.pathExists /dev/nvidia0;
+    safePathExists /sys/module/nvidia
+    || safePathExists /dev/nvidia0;
   hasAmdGpu =
-    builtins.pathExists /sys/module/amdgpu
-    || builtins.pathExists /dev/dri/renderD128;
-  hasIntelGpu = builtins.pathExists /sys/module/i915;
+    safePathExists /sys/module/amdgpu
+    || safePathExists /dev/dri/renderD128;
+  hasIntelGpu = safePathExists /sys/module/i915;
 
-  # Virtualization Detection
+  # Virtualization Detection with safe file reading
   isVirtual =
-    lib.strings.hasInfix "hypervisor" cpuinfo
-    || builtins.pathExists /sys/hypervisor/type;
+    (cpuinfo != "" && lib.strings.hasInfix "hypervisor" cpuinfo)
+    || safePathExists /sys/hypervisor/type;
 
-  # VM Type Detection
+  # VM Type Detection with safe file operations
   vmType =
     if !isVirtual
     then null
-    else if builtins.pathExists /sys/devices/virtual/dmi/id/sys_vendor
+    else if safePathExists /sys/devices/virtual/dmi/id/sys_vendor
     then let
-      vendor = lib.strings.removeSuffix "\n" (builtins.readFile /sys/devices/virtual/dmi/id/sys_vendor);
+      vendor = lib.strings.removeSuffix "\n" (safeReadFile /sys/devices/virtual/dmi/id/sys_vendor "unknown");
     in
       if vendor == "QEMU" || vendor == "KVM"
       then "qemu-kvm"

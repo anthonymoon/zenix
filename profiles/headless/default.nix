@@ -15,8 +15,7 @@
   # Serial console
   services.getty.autologinUser = null;
 
-  # Disable sound
-  sound.enable = false;
+  # Disable sound (sound.enable is deprecated in NixOS 24.11+)
   hardware.pulseaudio.enable = false;
 
   # Disable unnecessary hardware support
@@ -41,6 +40,9 @@
 
   # Power saving
   powerManagement.cpuFreqGovernor = lib.mkDefault "ondemand";
+
+  # Enable fish shell for amoon user
+  programs.fish.enable = true;
 
   # Minimal packages
   environment.systemPackages = with pkgs; [

@@ -109,6 +109,9 @@
       # Check if host-specific config exists
       hostConfigPath = ./hosts + "/${hostname}/default.nix";
       hasHostConfig = builtins.pathExists hostConfigPath;
+
+      # Exclude hardware detection for test configs
+      includeHardwareDetection = hostname != "test";
     in
       nixpkgs.lib.nixosSystem {
         inherit system;
@@ -128,10 +131,10 @@
 
             # Nix configuration with experimental features
             ./modules/nix-config.nix
-
-            # Hardware auto-detection (always included)
-            ./hardware/auto-detect.nix
-
+          ]
+          # Hardware auto-detection (skip for test configs)
+          ++ lib.optional includeHardwareDetection ./hardware/auto-detect.nix
+          ++ [
             # Common base configuration
             ./base
 
