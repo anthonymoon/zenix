@@ -19,16 +19,16 @@ A comprehensive NixOS configuration framework with automated disk management, ha
 #### Interactive Installation (Recommended)
 ```bash
 # Clone and enter the configuration directory
-git clone <your-repo-url> nixos-config
+git clone https://github.com/anthonymoon/nixos-fun.git nixos-config
 cd nixos-config
 
-# Run interactive installer
+# Run interactive installer (experimental features enabled automatically)
 ./scripts/install-interactive.sh
 ```
 
 #### Direct Installation
 ```bash
-# Install with auto-detection
+# Install with auto-detection (experimental features enabled automatically)
 ./scripts/install-host.sh laptop.kde.gaming.unstable
 
 # Install with specific disk
@@ -110,6 +110,15 @@ GPT Partition Table:
 ```
 
 ## 🔧 Advanced Features
+
+### Nix Configuration
+
+The system automatically enables:
+- **Experimental Features**: `nix-command` and `flakes` enabled by default
+- **Performance Optimizations**: Auto-optimise store, parallel builds
+- **Binary Caches**: NixOS, nix-community, Hyprland, and Chaotic-AUR caches
+- **Environment Variables**: `NIX_CONFIG` set automatically for all users
+- **Garbage Collection**: Weekly automatic cleanup of old generations
 
 ### Auto-Detection System
 

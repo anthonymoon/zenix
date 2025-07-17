@@ -114,13 +114,10 @@
               # Base system settings
               system.stateVersion = "24.11";
               networking.hostName = hostname;
-              
-              # Nix settings
-              nix.settings = {
-                experimental-features = [ "nix-command" "flakes" ];
-                auto-optimise-store = true;
-              };
             })
+            
+            # Nix configuration with experimental features
+            ./modules/nix-config.nix
             
             # Hardware auto-detection (always included)
             ./hardware/auto-detect.nix

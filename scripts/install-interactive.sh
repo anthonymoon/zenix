@@ -2,6 +2,9 @@
 # Interactive installation script for disko-install with auto-detection
 set -euo pipefail
 
+# Enable experimental features for this session
+export NIX_CONFIG="experimental-features = nix-command flakes"
+
 # Colors for output
 RED='\033[0;31m'
 GREEN='\033[0;32m'

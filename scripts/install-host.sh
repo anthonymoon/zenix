@@ -2,6 +2,9 @@
 # Simple host installation script
 set -euo pipefail
 
+# Enable experimental features for this session
+export NIX_CONFIG="experimental-features = nix-command flakes"
+
 usage() {
     cat << EOF
 Usage: $0 <hostname> [disk] [options]
