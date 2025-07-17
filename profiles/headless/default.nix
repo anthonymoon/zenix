@@ -22,7 +22,7 @@
   # Disable unnecessary hardware support
   hardware = {
     bluetooth.enable = false;
-    graphics.enable = false;
+    graphics.enable = lib.mkForce false;
   };
 
   # Headless services
