@@ -1,9 +1,12 @@
-{ config, lib, pkgs, ... }:
-
 {
+  config,
+  lib,
+  pkgs,
+  ...
+}: {
   boot = {
     kernelPackages = pkgs.linuxPackages_latest;
-    
+
     kernelParams = [
       "mitigations=off"
       "nowatchdog"
@@ -29,9 +32,9 @@
       "kvm_intel.vpid=1"
       "nouveau.modeset=0"
     ];
-    
-    blacklistedKernelModules = [ "r8169" ];
-    
+
+    blacklistedKernelModules = ["r8169"];
+
     extraModulePackages = with config.boot.kernelPackages; [
       turbostat
     ];

@@ -1,17 +1,20 @@
-{ config, lib, pkgs, ... }:
-
 {
+  config,
+  lib,
+  pkgs,
+  ...
+}: {
   systemd.network = {
     enable = true;
     wait-online.enable = false;
-    
+
     networks = {
       "10-lan" = {
         matchConfig.Name = "enp0s31f6";
         bridgeConfig.Bridge = "br0";
         linkConfig.RequiredForOnline = "no";
       };
-      
+
       "20-br0" = {
         matchConfig.Name = "br0";
         networkConfig = {
@@ -29,7 +32,7 @@
         };
       };
     };
-    
+
     netdevs = {
       "20-br0" = {
         netdevConfig = {
@@ -46,11 +49,11 @@
       };
     };
   };
-  
+
   services.resolved = {
     enable = true;
     dnssec = "false";
-    fallbackDns = [ "1.1.1.1" "8.8.8.8" ];
+    fallbackDns = ["1.1.1.1" "8.8.8.8"];
     llmnr = "true";
     extraConfig = ''
       MulticastDNS=yes

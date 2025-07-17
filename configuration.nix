@@ -1,13 +1,16 @@
-{ config, pkgs, lib, ... }:
-
 {
+  config,
+  pkgs,
+  lib,
+  ...
+}: {
   imports = [
     ./hardware-configuration.nix
     ./packages.nix
     ./services.nix
     ./networking.nix
     ./users
-    ./system/nix/full-cache.nix  # Enable local Nix cache with optimizations
+    ./system/nix/full-cache.nix # Enable local Nix cache with optimizations
   ];
 
   # Boot configuration
@@ -38,20 +41,20 @@
       "zfs.zfs_autoimport_disable=1"
       "zswap.enabled=0"
     ];
-    
+
     # Kernel modules
-    blacklistedKernelModules = [ "nouveau" "amdgpu" "radeon" ];
+    blacklistedKernelModules = ["nouveau" "amdgpu" "radeon"];
     extraModulePackages = with config.boot.kernelPackages; [
       nvidia_x11
     ];
-    
+
     # Kernel sysctl settings
     kernel.sysctl = {
       # Filesystem optimizations
       "fs.file-max" = 2097152;
       "fs.inotify.max_user_instances" = 8192;
       "fs.inotify.max_user_watches" = 1048576;
-      
+
       # Kernel security & performance
       "kernel.kptr_restrict" = 2;
       "kernel.perf_event_paranoid" = 3;
@@ -64,7 +67,7 @@
       "kernel.shmall" = 16777216;
       "kernel.msgmax" = 65536;
       "kernel.msgmni" = 32768;
-      
+
       # Network core optimizations
       "net.core.bpf_jit_enable" = 1;
       "net.core.bpf_jit_harden" = 0;
@@ -80,7 +83,7 @@
       "net.core.somaxconn" = 262144;
       "net.core.optmem_max" = 134217728;
       "net.core.default_qdisc" = "fq";
-      
+
       # TCP optimizations
       "net.ipv4.tcp_congestion_control" = "bbr";
       "net.ipv4.tcp_rmem" = "65536 16777216 1073741824";
@@ -109,12 +112,12 @@
       "net.ipv4.tcp_low_latency" = 1;
       "net.ipv4.tcp_ecn" = 2;
       "net.ipv4.ip_local_port_range" = "1024 65535";
-      
+
       # ARP table scaling
       "net.ipv4.neigh.default.gc_thresh1" = 4096;
       "net.ipv4.neigh.default.gc_thresh2" = 8192;
       "net.ipv4.neigh.default.gc_thresh3" = 16384;
-      
+
       # Security settings
       "net.ipv4.conf.all.rp_filter" = 1;
       "net.ipv4.conf.default.rp_filter" = 1;
@@ -127,13 +130,13 @@
       "net.ipv4.icmp_echo_ignore_broadcasts" = 1;
       "net.ipv4.icmp_ignore_bogus_error_responses" = 1;
       "net.ipv4.tcp_syncookies" = 1;
-      
+
       # IPv6 optimizations
       "net.ipv6.conf.all.autoconf" = 0;
       "net.ipv6.conf.default.autoconf" = 0;
       "net.ipv6.conf.all.accept_ra" = 0;
       "net.ipv6.conf.default.accept_ra" = 0;
-      
+
       # Virtual memory optimizations
       "vm.swappiness" = 1;
       "vm.dirty_ratio" = 40;
@@ -147,12 +150,12 @@
       "vm.overcommit_ratio" = 80;
       "vm.zone_reclaim_mode" = 0;
     };
-    
+
     # Support for ZFS
-    supportedFilesystems = [ "zfs" "btrfs" ];
+    supportedFilesystems = ["zfs" "btrfs"];
     zfs.forceImportRoot = false;
   };
-  
+
   # Hardware configuration
   hardware = {
     nvidia = {
@@ -163,31 +166,30 @@
     bluetooth.enable = true;
     enableRedistributableFirmware = true;
   };
-  
+
   # System configuration
   system.stateVersion = "24.11";
-  
-  
+
   # Time zone and locale
   time.timeZone = "America/New_York"; # Adjust as needed
   i18n.defaultLocale = "en_US.UTF-8";
-  
+
   # Console configuration
   console = {
     font = "ter-v32n";
     keyMap = "us";
   };
-  
+
   # Enable firmware updates
   services.fwupd.enable = true;
-  
+
   # Enable trim for SSDs
   services.fstrim.enable = true;
-  
+
   # Nix configuration
   nix = {
     settings = {
-      experimental-features = [ "nix-command" "flakes" ];
+      experimental-features = ["nix-command" "flakes"];
       auto-optimise-store = true;
     };
   };

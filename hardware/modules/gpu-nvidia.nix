@@ -1,16 +1,19 @@
-{ config, lib, pkgs, ... }:
-
 {
+  config,
+  lib,
+  pkgs,
+  ...
+}: {
   # NVIDIA GPU configuration (auto-detected)
   boot = {
     kernelParams = lib.mkDefault [
       "nvidia-drm.modeset=1"
     ];
-    blacklistedKernelModules = [ "nouveau" ];
+    blacklistedKernelModules = ["nouveau"];
   };
-  
-  services.xserver.videoDrivers = lib.mkBefore [ "nvidia" ];
-  
+
+  services.xserver.videoDrivers = lib.mkBefore ["nvidia"];
+
   hardware.nvidia = {
     modesetting.enable = lib.mkDefault true;
     powerManagement.enable = lib.mkDefault true;
@@ -18,7 +21,7 @@
     nvidiaSettings = lib.mkDefault true;
     package = lib.mkDefault config.boot.kernelPackages.nvidiaPackages.stable;
   };
-  
+
   hardware.opengl = {
     enable = true;
     driSupport = true;

@@ -1,18 +1,21 @@
-{ config, lib, pkgs, ... }:
-
 {
+  config,
+  lib,
+  pkgs,
+  ...
+}: {
   # Minimal base configuration for all systems
-  
+
   # Locale settings
   time.timeZone = lib.mkDefault "UTC";
   i18n.defaultLocale = lib.mkDefault "en_US.UTF-8";
-  
+
   # Console
   console = {
     font = "Lat2-Terminus16";
     keyMap = lib.mkDefault "us";
   };
-  
+
   # Basic boot settings
   boot = {
     tmp.cleanOnBoot = true;
@@ -21,7 +24,7 @@
       "net.ipv4.ip_forward" = 1;
     };
   };
-  
+
   # Essential system packages (absolute minimum)
   environment.systemPackages = with pkgs; [
     vim
@@ -29,13 +32,13 @@
     htop
     tmux
   ];
-  
+
   # Basic networking
   networking = {
     useDHCP = lib.mkDefault true;
     firewall.enable = lib.mkDefault true;
   };
-  
+
   # Enable basic services
   services = {
     openssh = {
@@ -46,7 +49,7 @@
       };
     };
   };
-  
+
   # Security basics
   security = {
     sudo.enable = true;

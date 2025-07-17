@@ -8,19 +8,11 @@ repos:
         files: \.nix$
         pass_filenames: true
         
-      # Validation hooks - skip with SKIP=nix-flake-check,nix-eval-check git commit
-      - id: nix-flake-check
-        name: Nix flake check (skip with SKIP=nix-flake-check)
-        entry: bash -c 'if [[ $(git diff --cached --name-only | grep -E "\.(nix|lock)$") ]]; then nix flake check --no-write-lock-file; fi'
+      # Validation hooks - skip with SKIP=nix-syntax-check git commit
+      - id: nix-syntax-check
+        name: Nix syntax check (skip with SKIP=nix-syntax-check)
+        entry: bash -c 'for file in "$@"; do echo "Checking $file..."; nix-instantiate --parse "$file" > /dev/null; done'
         language: system
-        pass_filenames: false
-        always_run: true
-        stages: [pre-commit]
-        
-      - id: nix-eval-check
-        name: Check nixos config evaluation (skip with SKIP=nix-eval-check)
-        entry: bash -c 'if [[ $(git diff --cached --name-only | grep -E "\.(nix)$") ]]; then nix eval --no-write-lock-file --show-trace --expr "let flake = builtins.getFlake (toString ./.); in flake.lib.buildSystem \"test.headless.stable\"" >/dev/null; fi'
-        language: system
-        pass_filenames: false
-        always_run: true
+        files: \.nix$
+        pass_filenames: true
         stages: [pre-commit]

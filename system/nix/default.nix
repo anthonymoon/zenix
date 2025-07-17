@@ -1,11 +1,14 @@
-{ config, lib, pkgs, ... }:
-
 {
+  config,
+  lib,
+  pkgs,
+  ...
+}: {
   nix = {
     settings = {
-      experimental-features = [ "nix-command" "flakes" ];
+      experimental-features = ["nix-command" "flakes"];
       auto-optimise-store = true;
-      trusted-users = [ "root" "amoon" ];
+      trusted-users = ["root" "amoon"];
       substituters = [
         "https://cache.nixos.org/"
         "https://nix-community.cachix.org"
@@ -19,30 +22,30 @@
       keep-outputs = true;
       keep-derivations = true;
     };
-    
+
     gc = {
       automatic = true;
       dates = "weekly";
       options = "--delete-older-than 7d";
     };
-    
+
     extraOptions = ''
       min-free = ${toString (100 * 1024 * 1024 * 1024)}
       max-free = ${toString (1024 * 1024 * 1024 * 1024)}
     '';
   };
-  
+
   nixpkgs.config = {
     allowUnfree = true;
     permittedInsecurePackages = [
       # Add any insecure packages you need here
     ];
   };
-  
+
   # System-wide settings
   time.timeZone = "America/Los_Angeles";
   i18n.defaultLocale = "en_US.UTF-8";
-  
+
   console = {
     font = "Lat2-Terminus16";
     keyMap = "us";

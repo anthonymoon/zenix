@@ -1,34 +1,37 @@
-{ config, lib, pkgs, ... }:
-
 {
+  config,
+  lib,
+  pkgs,
+  ...
+}: {
   programs.fish = {
     enable = true;
-    
+
     shellAbbrs = {
       # Add fish abbreviations here
     };
-    
+
     shellAliases = {
-      # Add fish aliases here  
+      # Add fish aliases here
     };
-    
+
     shellInit = ''
       # Add any fish initialization here
     '';
-    
+
     interactiveShellInit = ''
       # Add interactive shell initialization here
     '';
-    
+
     promptInit = ''
       # Prompt initialization (if not using starship)
     '';
-    
+
     functions = {
       # Define custom fish functions here
     };
   };
-  
+
   environment.systemPackages = with pkgs; [
     fish
     fishPlugins.done
@@ -48,7 +51,7 @@
     fishPlugins.puffer
     fishPlugins.fishtape
   ];
-  
+
   # Set fish as an allowed shell
-  environment.shells = with pkgs; [ fish ];
+  environment.shells = with pkgs; [fish];
 }

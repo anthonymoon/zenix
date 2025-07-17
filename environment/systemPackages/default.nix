@@ -1,6 +1,9 @@
-{ config, lib, pkgs, ... }:
-
 {
+  config,
+  lib,
+  pkgs,
+  ...
+}: {
   environment.systemPackages = with pkgs; [
     # Core system utilities
     coreutils
@@ -15,30 +18,30 @@
     patch
     which
     file
-    
+
     # System tools
     systemd
     shadow
     pam
     kbd
     kmod
-    
+
     # Compression
     gzip
     bzip2
     xz
     zstd
-    
+
     # Archives
     tar
     cpio
     zip
     unzip
-    
+
     # Text editors (minimal)
     nano
     vim
-    
+
     # Networking basics
     inetutils
     iputils
@@ -53,11 +56,11 @@
     curl
     wget
     rsync
-    
+
     # DNS tools
     bind
     dnsutils
-    
+
     # System monitoring
     htop
     iotop
@@ -66,7 +69,7 @@
     strace
     sysstat
     dstat
-    
+
     # Hardware tools
     pciutils
     usbutils
@@ -78,7 +81,7 @@
     hdparm
     sdparm
     nvme-cli
-    
+
     # Filesystem tools
     e2fsprogs
     xfsprogs
@@ -91,55 +94,55 @@
     lvm2
     mdadm
     cryptsetup
-    
+
     # Process management
     psmisc
     killall
-    
+
     # Time
     chrony
     tzdata
-    
+
     # Logs
     rsyslog
     logrotate
     journalctl
-    
+
     # Package management
     nix
     nix-index
-    
+
     # Shell basics
     bash
     bash-completion
-    
+
     # Man pages
     man-db
     man-pages
-    
+
     # Security basics
     sudo
     openssl
     ca-certificates
     gnupg
-    
+
     # Service management
     systemctl
-    
+
     # Basic debugging
     gdb
     valgrind
     perf-tools
-    
+
     # Kernel tools
     kexec-tools
     kernel-config
-    
+
     # Boot
     grub2
     efibootmgr
     efivar
-    
+
     # Other essentials
     bc
     tree
@@ -152,37 +155,37 @@
     tmux
     screen
     git
-    
+
     # System info
     neofetch
     inxi
-    
+
     # Cron
     cronie
-    
+
     # Mail
     mailutils
     postfix
-    
+
     # Performance
     cpupower
     powertop
     turbostat
     irqbalance
     numactl
-    
+
     # Virtualization (if needed for servers)
     qemu
     libvirt
-    
+
     # Container runtime (if needed)
     docker
     podman
-    
+
     # Backup tools
     borgbackup
     restic
-    
+
     # Remote management
     cockpit
   ];

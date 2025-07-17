@@ -1,9 +1,12 @@
 # ZFS with LUKS2 encryption
-{ lib, config, pkgs, ... }:
-let
-  hostname = config.networking.hostName or "nixos";
-in
 {
+  lib,
+  config,
+  pkgs,
+  ...
+}: let
+  hostname = config.networking.hostName or "nixos";
+in {
   disko.devices = {
     disk = {
       main = {
@@ -21,7 +24,7 @@ in
                 type = "filesystem";
                 format = "vfat";
                 mountpoint = "/boot";
-                mountOptions = [ "defaults" "umask=0077" ];
+                mountOptions = ["defaults" "umask=0077"];
               };
             };
             luks = {
@@ -35,7 +38,7 @@ in
                   # LUKS2 with Argon2id
                   keyFile = lib.mkDefault null;
                   allowDiscards = true;
-                  crypttabExtraOpts = [ "tpm2-device=auto" "tpm2-pcrs=0+2+7" ];
+                  crypttabExtraOpts = ["tpm2-device=auto" "tpm2-pcrs=0+2+7"];
                 };
                 content = {
                   type = "zfs";
@@ -123,7 +126,7 @@ in
   };
 
   # ZFS-specific configuration
-  boot.supportedFilesystems = [ "zfs" ];
+  boot.supportedFilesystems = ["zfs"];
   boot.zfs.devNodes = "/dev/disk/by-partlabel";
   networking.hostId = lib.mkDefault "$(head -c 8 /etc/machine-id)";
 

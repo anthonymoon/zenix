@@ -1,12 +1,15 @@
-{ config, lib, pkgs, ... }:
-
 {
+  config,
+  lib,
+  pkgs,
+  ...
+}: {
   services.samba = {
     enable = true;
     nmbd.enable = true;
     winbindd.enable = true;
     openFirewall = true;
-    
+
     settings = {
       global = {
         workgroup = "WORKGROUP";
@@ -50,7 +53,7 @@
         "fruit:delete_empty_adfiles" = "yes";
         "fruit:aapl" = "yes";
       };
-      
+
       Media = {
         path = "/storage/media";
         browseable = "yes";
@@ -63,7 +66,7 @@
         "veto files" = "/.apdisk/.DS_Store/.TemporaryItems/.Trashes/desktop.ini/ehthumbs.db/Network Trash Folder/Temporary Items/Thumbs.db/";
         "delete veto files" = "yes";
       };
-      
+
       Backups = {
         path = "/storage/backups";
         browseable = "yes";
@@ -73,7 +76,7 @@
         "directory mask" = "0700";
         "guest ok" = "no";
       };
-      
+
       Public = {
         path = "/storage/public";
         browseable = "yes";
@@ -86,7 +89,7 @@
       };
     };
   };
-  
+
   services.samba-wsdd = {
     enable = true;
     discovery = true;

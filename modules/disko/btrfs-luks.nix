@@ -1,19 +1,24 @@
 # Btrfs single disk with LUKS encryption and TPM2 auto-unlock
-{ config, lib, pkgs, inputs, ... }:
-let
-  # Import disk detection utilities
-  diskLib = import ../../lib/disk-detection.nix { inherit lib pkgs; };
-  
-  # Auto-detect the primary disk with fallback
-  primaryDisk = config.disko.primaryDisk or (diskLib.detectPrimaryDisk {
-    preferNvme = true;
-    preferSSD = true;
-    minSizeGB = 64;  # Minimum 64GB for encrypted system
-  });
-in
 {
+  config,
+  lib,
+  pkgs,
+  inputs,
+  ...
+}: let
+  # Import disk detection utilities
+  diskLib = import ../../lib/disk-detection.nix {inherit lib pkgs;};
+
+  # Auto-detect the primary disk with fallback
+  primaryDisk =
+    config.disko.primaryDisk or (diskLib.detectPrimaryDisk {
+      preferNvme = true;
+      preferSSD = true;
+      minSizeGB = 64; # Minimum 64GB for encrypted system
+    });
+in {
   # Import lanzaboote for secure boot when encryption is used
-  imports = [ inputs.lanzaboote.nixosModules.lanzaboote ];
+  imports = [inputs.lanzaboote.nixosModules.lanzaboote];
 
   # Add configuration options
   options.disko = {
@@ -21,7 +26,7 @@ in
       type = lib.types.str;
       description = "Primary disk to use for installation (auto-detected if not specified)";
     };
-    
+
     enableTPM2 = lib.mkOption {
       type = lib.types.bool;
       default = true;
@@ -32,7 +37,7 @@ in
   config = {
     # Set the detected disk as default
     disko.primaryDisk = lib.mkDefault primaryDisk;
-    
+
     # Use ZRAM instead of swap file for better performance
     zramSwap = {
       enable = true;
@@ -60,9 +65,9 @@ in
                   type = "filesystem";
                   format = "vfat";
                   mountpoint = "/boot";
-                  mountOptions = [ 
-                    "defaults" 
-                    "umask=0077" 
+                  mountOptions = [
+                    "defaults"
+                    "umask=0077"
                     "iocharset=iso8859-1"
                     "shortname=winnt"
                     "utf8"
@@ -92,29 +97,30 @@ in
                   };
                   content = {
                     type = "btrfs";
-                    extraArgs = [ 
-                      "-f"  # Force create
-                      "-L" "nixos-encrypted"  # Filesystem label
+                    extraArgs = [
+                      "-f" # Force create
+                      "-L"
+                      "nixos-encrypted" # Filesystem label
                     ];
                     subvolumes = {
                       # Root subvolume with optimized mount options
                       "@" = {
                         mountpoint = "/";
-                        mountOptions = [ 
-                          "compress=zstd:1"  # Fast compression level
+                        mountOptions = [
+                          "compress=zstd:1" # Fast compression level
                           "noatime"
                           "nodiratime"
-                          "discard=async"  # Async TRIM for SSDs
+                          "discard=async" # Async TRIM for SSDs
                           "space_cache=v2"
-                          "ssd"  # Enable SSD optimizations
-                          "commit=120"  # Longer commit interval for NVMe
+                          "ssd" # Enable SSD optimizations
+                          "commit=120" # Longer commit interval for NVMe
                         ];
                       };
                       # Home subvolume
                       "@home" = {
                         mountpoint = "/home";
-                        mountOptions = [ 
-                          "compress=zstd:3"  # Better compression for user data
+                        mountOptions = [
+                          "compress=zstd:3" # Better compression for user data
                           "noatime"
                           "nodiratime"
                           "discard=async"
@@ -125,20 +131,20 @@ in
                       # Nix store subvolume with different optimization
                       "@nix" = {
                         mountpoint = "/nix";
-                        mountOptions = [ 
-                          "compress=zstd:1"  # Fast compression for frequent access
+                        mountOptions = [
+                          "compress=zstd:1" # Fast compression for frequent access
                           "noatime"
                           "nodiratime"
                           "discard=async"
                           "space_cache=v2"
                           "ssd"
-                          "commit=300"  # Longer commits for build performance
+                          "commit=300" # Longer commits for build performance
                         ];
                       };
                       # Var subvolume for logs and temporary data
                       "@var" = {
                         mountpoint = "/var";
-                        mountOptions = [ 
+                        mountOptions = [
                           "compress=zstd:1"
                           "noatime"
                           "nodiratime"
@@ -150,8 +156,8 @@ in
                       # Tmp subvolume for temporary files
                       "@tmp" = {
                         mountpoint = "/tmp";
-                        mountOptions = [ 
-                          "compress=no"  # No compression for temp files
+                        mountOptions = [
+                          "compress=no" # No compression for temp files
                           "noatime"
                           "nodiratime"
                           "discard=async"
@@ -162,7 +168,7 @@ in
                       # Snapshots subvolume (not mounted by default)
                       "@snapshots" = {
                         mountpoint = "/.snapshots";
-                        mountOptions = [ 
+                        mountOptions = [
                           "compress=zstd:3"
                           "noatime"
                           "nodiratime"
@@ -180,12 +186,12 @@ in
         };
       };
     };
-    
+
     # LUKS configuration
     boot.initrd.luks.devices."root" = {
       device = "/dev/disk/by-partlabel/cryptroot";
       allowDiscards = true;
-      
+
       # TPM2 configuration
       crypttabExtraOpts = lib.optionals config.disko.enableTPM2 [
         "tpm2-device=auto"
@@ -193,7 +199,7 @@ in
         "timeout=10"
       ];
     };
-    
+
     # Enable TPM2 support
     security.tpm2 = lib.mkIf config.disko.enableTPM2 {
       enable = true;
@@ -201,53 +207,53 @@ in
       pkcs11.enable = true;
       tctiEnvironment.enable = true;
     };
-    
+
     # Configure lanzaboote for secure boot with encryption
     boot.lanzaboote = lib.mkIf config.disko.enableTPM2 {
       enable = true;
       pkiBundle = "/etc/secureboot";
     };
-    
+
     # Enable Btrfs optimizations
     services.btrfs.autoScrub = {
       enable = true;
       interval = "monthly";
-      fileSystems = [ "/" ];
+      fileSystems = ["/"];
     };
-    
+
     # Additional boot configuration for encrypted Btrfs
     boot = {
       # Include necessary modules for encryption and Btrfs
-      initrd.availableKernelModules = [ 
-        "btrfs" 
-        "dm_crypt" 
-        "dm_mod" 
-        "aesni_intel" 
+      initrd.availableKernelModules = [
+        "btrfs"
+        "dm_crypt"
+        "dm_mod"
+        "aesni_intel"
         "cryptd"
       ];
-      
+
       # Add TPM modules
       initrd.kernelModules = lib.optionals config.disko.enableTPM2 [
         "tpm"
         "tpm_tis"
         "tpm_crb"
       ];
-      
+
       # Optimized kernel parameters for encrypted Btrfs
       kernelParams = [
         # Btrfs optimizations
         "rootflags=compress=zstd:1,noatime,ssd,discard=async"
         # Crypto optimizations
-        "cryptomgr.notests"  # Skip crypto self-tests for faster boot
+        "cryptomgr.notests" # Skip crypto self-tests for faster boot
       ];
-      
+
       # Improve boot performance
       loader = {
         timeout = 3;
         systemd-boot = lib.mkIf (!config.boot.lanzaboote.enable) {
           enable = true;
           configurationLimit = 10;
-          editor = false;  # Disable editor for security
+          editor = false; # Disable editor for security
         };
       };
     };
@@ -257,12 +263,12 @@ in
       enable = true;
       interval = "weekly";
     };
-    
+
     # Systemd service for TPM2 enrollment (run after installation)
     systemd.services.enroll-tpm2-luks = lib.mkIf config.disko.enableTPM2 {
       description = "Enroll TPM2 for LUKS auto-unlock";
-      wantedBy = [ "multi-user.target" ];
-      after = [ "tpm2-abrmd.service" ];
+      wantedBy = ["multi-user.target"];
+      after = ["tpm2-abrmd.service"];
       serviceConfig = {
         Type = "oneshot";
         RemainAfterExit = true;

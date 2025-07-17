@@ -1,11 +1,14 @@
-{ config, lib, pkgs, ... }:
-
 {
+  config,
+  lib,
+  pkgs,
+  ...
+}: {
   # Security hardened profile
-  
+
   # Hardened kernel
   boot.kernelPackages = lib.mkDefault pkgs.linuxPackages_hardened;
-  
+
   # Security kernel parameters
   boot.kernelParams = [
     "slab_nomerge"
@@ -17,19 +20,19 @@
     "quiet"
     "loglevel=0"
   ];
-  
+
   # Security settings
   security = {
     lockKernelModules = true;
     protectKernelImage = true;
     forcePageTableIsolation = true;
     virtualisation.flushL1DataCache = "always";
-    
+
     apparmor = {
       enable = true;
       killUnconfinedConfinables = true;
     };
-    
+
     audit = {
       enable = true;
       rules = [
@@ -39,7 +42,7 @@
       ];
     };
   };
-  
+
   # Firewall
   networking.firewall = {
     enable = true;
@@ -47,21 +50,21 @@
     logReversePathDrops = true;
     logRefusedConnections = true;
   };
-  
+
   # Disable unnecessary services
   services = {
     avahi.enable = false;
     cups.enable = false;
     printing.enable = false;
   };
-  
+
   # Restrict nix
   nix.settings = {
-    allowed-users = [ "@wheel" ];
-    trusted-users = [ "root" ];
+    allowed-users = ["@wheel"];
+    trusted-users = ["root"];
     sandbox = true;
   };
-  
+
   # Harden SSH
   services.openssh = {
     enable = true;

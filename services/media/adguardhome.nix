@@ -1,6 +1,9 @@
-{ config, lib, pkgs, ... }:
-
 {
+  config,
+  lib,
+  pkgs,
+  ...
+}: {
   services.adguardhome = {
     enable = true;
     mutableSettings = true;
@@ -11,7 +14,7 @@
         address = "0.0.0.0:3000";
       };
       dns = {
-        bind_hosts = [ "0.0.0.0" ];
+        bind_hosts = ["0.0.0.0"];
         port = 53;
         protection_enabled = true;
         filtering_enabled = true;

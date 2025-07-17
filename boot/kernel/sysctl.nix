@@ -1,6 +1,9 @@
-{ config, lib, pkgs, ... }:
-
 {
+  config,
+  lib,
+  pkgs,
+  ...
+}: {
   boot.kernel.sysctl = {
     # Network Performance Tuning
     "net.core.netdev_max_backlog" = 16384;
@@ -59,7 +62,7 @@
     "net.ipv4.ip_forward" = 1;
     "net.ipv6.conf.all.forwarding" = 1;
     "net.ipv6.conf.default.forwarding" = 1;
-    
+
     # Security hardening
     "kernel.kptr_restrict" = 1;
     "kernel.dmesg_restrict" = 1;
@@ -79,7 +82,7 @@
     "kernel.pid_max" = 4194304;
     "kernel.perf_event_paranoid" = 3;
     "vm.unprivileged_userfaultfd" = 0;
-    
+
     # File system
     "fs.file-max" = 9223372036854775807;
     "fs.inotify.max_user_watches" = 524288;
@@ -87,7 +90,7 @@
     "fs.aio-max-nr" = 524288;
     "fs.protected_fifos" = 2;
     "fs.protected_regular" = 2;
-    
+
     # Virtual Memory
     "vm.swappiness" = 1;
     "vm.overcommit_memory" = 1;
@@ -98,7 +101,7 @@
     "vm.max_map_count" = 2147483642;
     "vm.mmap_rnd_bits" = 32;
     "vm.mmap_rnd_compat_bits" = 16;
-    
+
     # Kernel
     "kernel.numa_balancing" = 0;
     "kernel.sched_migration_cost_ns" = 5000000;

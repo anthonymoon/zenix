@@ -1,10 +1,13 @@
-{ config, lib, pkgs, ... }:
-
 {
+  config,
+  lib,
+  pkgs,
+  ...
+}: {
   sound.enable = true;
   hardware.pulseaudio.enable = false;
   security.rtkit.enable = true;
-  
+
   services.pipewire = {
     enable = true;
     alsa = {
@@ -13,7 +16,7 @@
     };
     pulse.enable = true;
     jack.enable = true;
-    
+
     wireplumber.configPackages = [
       (pkgs.writeTextDir "share/wireplumber/bluetooth.lua.d/51-bluez-config.lua" ''
         bluez_monitor.properties = {

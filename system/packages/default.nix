@@ -1,6 +1,9 @@
-{ config, lib, pkgs, ... }:
-
 {
+  config,
+  lib,
+  pkgs,
+  ...
+}: {
   environment.systemPackages = with pkgs; [
     # Base system tools
     alsa-firmware
@@ -93,36 +96,36 @@
     xterm
     zip
     zsh
-    
+
     # Development tools
     gcc
     gnumake
     python3
     rustc
     cargo
-    
+
     # Container tools
     podman
     podman-compose
     docker-compose
-    
+
     # Virtualization
     virt-manager
     virt-viewer
     qemu
     OVMF
-    
+
     # Media tools
     ffmpeg
-    
+
     # Text editors
     nano
     neovim
   ];
-  
+
   # Shell configuration
   programs.fish.enable = true;
-  
+
   programs.zsh = {
     enable = true;
     autosuggestions.enable = true;
@@ -130,10 +133,10 @@
     ohMyZsh = {
       enable = true;
       theme = "robbyrussell";
-      plugins = [ "git" "docker" "kubectl" ];
+      plugins = ["git" "docker" "kubectl"];
     };
   };
-  
+
   # Font packages
   fonts.packages = with pkgs; [
     noto-fonts
@@ -145,6 +148,6 @@
     mplus-outline-fonts.githubRelease
     dina-font
     proggyfonts
-    (nerdfonts.override { fonts = [ "FiraCode" "DroidSansMono" "JetBrainsMono" ]; })
+    (nerdfonts.override {fonts = ["FiraCode" "DroidSansMono" "JetBrainsMono"];})
   ];
 }

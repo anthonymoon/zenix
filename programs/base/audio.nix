@@ -1,9 +1,12 @@
-{ config, lib, pkgs, ... }:
-
 {
+  config,
+  lib,
+  pkgs,
+  ...
+}: {
   environment.systemPackages = with pkgs; [
     alsa-firmware
-    alsa-plugins  
+    alsa-plugins
     alsa-utils
     pulseaudio
   ];
