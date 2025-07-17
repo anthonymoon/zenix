@@ -4,23 +4,22 @@
   pkgs,
   ...
 }: {
-  services.xserver = {
-    enable = true;
-    displayManager.sddm.enable = true;
-    desktopManager.plasma6.enable = true;
-  };
+  # Update to new service names (NixOS 24.11+)
+  services.xserver.enable = true;
+  services.displayManager.sddm.enable = true;
+  services.desktopManager.plasma6.enable = true;
 
-  # KDE packages
+  # KDE packages - use kdePackages namespace for Qt6 versions
   environment.systemPackages = with pkgs; [
-    ark
-    dolphin
-    kate
-    kdeconnect
-    kdenlive
-    konsole
-    okular
-    plasma-browser-integration
-    spectacle
+    kdePackages.ark
+    kdePackages.dolphin
+    kdePackages.kate
+    kdePackages.kdeconnect
+    kdePackages.kdenlive
+    kdePackages.konsole
+    kdePackages.okular
+    kdePackages.plasma-browser-integration
+    kdePackages.spectacle
   ];
 
   # Enable KDE partition manager
