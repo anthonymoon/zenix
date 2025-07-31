@@ -1,7 +1,8 @@
-{ config
-, lib
-, pkgs
-, ...
+{
+  config,
+  lib,
+  pkgs,
+  ...
 }: {
   programs.fish = {
     enable = true;
@@ -52,5 +53,5 @@
   ];
 
   # Set fish as an allowed shell
-  environment.shells = with pkgs; [ fish ];
+  environment.shells = with pkgs; [fish];
 }

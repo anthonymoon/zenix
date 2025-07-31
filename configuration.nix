@@ -1,7 +1,8 @@
-{ config
-, pkgs
-, lib
-, ...
+{
+  config,
+  pkgs,
+  lib,
+  ...
 }: {
   imports = [
     ./hardware-configuration.nix
@@ -42,7 +43,7 @@
     ];
 
     # Kernel modules
-    blacklistedKernelModules = [ "nouveau" "amdgpu" "radeon" ];
+    blacklistedKernelModules = ["nouveau" "amdgpu" "radeon"];
     extraModulePackages = with config.boot.kernelPackages; [
       nvidia_x11
     ];
@@ -151,7 +152,7 @@
     };
 
     # Support for ZFS
-    supportedFilesystems = [ "zfs" "btrfs" ];
+    supportedFilesystems = ["zfs" "btrfs"];
     zfs.forceImportRoot = false;
   };
 
@@ -188,7 +189,7 @@
   # Nix configuration
   nix = {
     settings = {
-      experimental-features = [ "nix-command" "flakes" ];
+      experimental-features = ["nix-command" "flakes"];
       auto-optimise-store = true;
     };
   };

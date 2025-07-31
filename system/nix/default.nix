@@ -1,13 +1,14 @@
-{ config
-, lib
-, pkgs
-, ...
+{
+  config,
+  lib,
+  pkgs,
+  ...
 }: {
   nix = {
     settings = {
-      experimental-features = [ "nix-command" "flakes" ];
+      experimental-features = ["nix-command" "flakes"];
       auto-optimise-store = true;
-      trusted-users = [ "root" "amoon" ];
+      trusted-users = ["root" "amoon"];
       substituters = [
         "https://cache.nixos.org/"
         "https://nix-community.cachix.org"

@@ -1,7 +1,8 @@
-{ config
-, pkgs
-, lib
-, ...
+{
+  config,
+  pkgs,
+  lib,
+  ...
 }: {
   # SSH service
   services.openssh = {
@@ -42,7 +43,7 @@
       swtpm.enable = true;
       ovmf = {
         enable = true;
-        packages = [ pkgs.OVMFFull.fd ];
+        packages = [pkgs.OVMFFull.fd];
       };
     };
   };
@@ -92,7 +93,7 @@
   services.btrfs.autoScrub = {
     enable = true;
     interval = "weekly";
-    fileSystems = [ "/" ];
+    fileSystems = ["/"];
   };
 
   # SMART monitoring
@@ -121,7 +122,7 @@
       bind_host = "0.0.0.0";
       bind_port = 3000;
       dns = {
-        bind_hosts = [ "0.0.0.0" ];
+        bind_hosts = ["0.0.0.0"];
         port = 53;
         upstream_dns = [
           "94.140.14.14"
@@ -164,7 +165,7 @@
   # System timers
   systemd.timers = {
     "btrfs-maintenance" = {
-      wantedBy = [ "timers.target" ];
+      wantedBy = ["timers.target"];
       timerConfig = {
         OnCalendar = "weekly";
         Persistent = true;
@@ -172,7 +173,7 @@
     };
 
     "auto-rollback" = {
-      wantedBy = [ "timers.target" ];
+      wantedBy = ["timers.target"];
       timerConfig = {
         OnCalendar = "daily";
         Persistent = true;
@@ -180,7 +181,7 @@
     };
 
     "snapper-cleanup" = {
-      wantedBy = [ "timers.target" ];
+      wantedBy = ["timers.target"];
       timerConfig = {
         OnCalendar = "daily";
         Persistent = true;
@@ -188,7 +189,7 @@
     };
 
     "snapper-cleanup-aggressive" = {
-      wantedBy = [ "timers.target" ];
+      wantedBy = ["timers.target"];
       timerConfig = {
         OnCalendar = "weekly";
         Persistent = true;
@@ -196,7 +197,7 @@
     };
 
     "snapper-timeline" = {
-      wantedBy = [ "timers.target" ];
+      wantedBy = ["timers.target"];
       timerConfig = {
         OnCalendar = "hourly";
         Persistent = true;
@@ -208,7 +209,7 @@
   systemd.services = {
     "nvme-watchdog" = {
       description = "NVMe Watchdog";
-      wantedBy = [ "multi-user.target" ];
+      wantedBy = ["multi-user.target"];
       serviceConfig = {
         Type = "simple";
         ExecStart = "${pkgs.bash}/bin/bash -c 'while true; do nvme list > /dev/null 2>&1; sleep 60; done'";

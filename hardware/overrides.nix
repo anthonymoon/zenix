@@ -1,29 +1,30 @@
-{ config
-, lib
-, pkgs
-, ...
+{
+  config,
+  lib,
+  pkgs,
+  ...
 }: {
   options.hardware.overrides = {
     cpu = lib.mkOption {
-      type = lib.types.nullOr (lib.types.enum [ "intel" "amd" "generic" ]);
+      type = lib.types.nullOr (lib.types.enum ["intel" "amd" "generic"]);
       default = null;
       description = "Override CPU detection";
     };
 
     gpu = lib.mkOption {
-      type = lib.types.listOf (lib.types.enum [ "nvidia" "amd" "intel" "none" ]);
-      default = [ ];
+      type = lib.types.listOf (lib.types.enum ["nvidia" "amd" "intel" "none"]);
+      default = [];
       description = "Override GPU detection";
     };
 
     platform = lib.mkOption {
-      type = lib.types.nullOr (lib.types.enum [ "physical" "virtual" ]);
+      type = lib.types.nullOr (lib.types.enum ["physical" "virtual"]);
       default = null;
       description = "Override platform detection";
     };
   };
 
-  config = lib.mkIf (config.hardware.overrides != { }) {
+  config = lib.mkIf (config.hardware.overrides != {}) {
     # Override detection if specified
     imports =
       # CPU override

@@ -1,9 +1,10 @@
-{ config
-, lib
-, pkgs
-, ...
+{
+  config,
+  lib,
+  pkgs,
+  ...
 }: {
-  boot.supportedFilesystems = [ "zfs" ];
+  boot.supportedFilesystems = ["zfs"];
   boot.zfs.forceImportRoot = false;
 
   services.zfs = {
@@ -17,7 +18,7 @@
     };
     zed.settings = {
       ZED_DEBUG_LOG = "/tmp/zed.debug.log";
-      ZED_EMAIL_ADDR = [ "root" ];
+      ZED_EMAIL_ADDR = ["root"];
       ZED_EMAIL_PROG = "mail";
       ZED_EMAIL_OPTS = "-s '@SUBJECT@' @ADDRESS@";
       ZED_NOTIFY_INTERVAL_SECS = 3600;

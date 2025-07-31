@@ -1,11 +1,15 @@
-{ config
-, lib
-, pkgs
-, ...
+{
+  config,
+  lib,
+  pkgs,
+  ...
 }: {
   # Minimal base configuration for all systems
   imports = [
-    ./packages.nix  # Core packages for all systems
+    ./packages.nix # Core packages for all systems
+    ../system/filesystems # Filesystem support
+    ../hardware/kernel-modules.nix # Advanced kernel modules
+    ../boot/plymouth # Boot splash
   ];
 
   # Locale settings

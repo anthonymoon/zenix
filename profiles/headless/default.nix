@@ -1,13 +1,14 @@
-{ config
-, lib
-, pkgs
-, ...
+{
+  config,
+  lib,
+  pkgs,
+  ...
 }: {
   # Headless server profile
 
   # Boot to console with serial support
   boot = {
-    kernelParams = [ "console=ttyS0,115200n8" "console=tty0" "console=ttyS0" ];
+    kernelParams = ["console=ttyS0,115200n8" "console=tty0" "console=ttyS0"];
     loader.timeout = 2;
   };
 

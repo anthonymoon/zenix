@@ -1,7 +1,8 @@
-{ config
-, lib
-, pkgs
-, ...
+{
+  config,
+  lib,
+  pkgs,
+  ...
 }: {
   # Test host configuration - completely minimal for testing
 
@@ -13,22 +14,22 @@
     "/" = {
       device = "/dev/disk/by-label/nixos";
       fsType = "btrfs";
-      options = [ "subvol=@" "compress=zstd" "noatime" ];
+      options = ["subvol=@" "compress=zstd" "noatime"];
     };
     "/home" = {
       device = "/dev/disk/by-label/nixos";
       fsType = "btrfs";
-      options = [ "subvol=@home" "compress=zstd" "noatime" ];
+      options = ["subvol=@home" "compress=zstd" "noatime"];
     };
     "/nix" = {
       device = "/dev/disk/by-label/nixos";
       fsType = "btrfs";
-      options = [ "subvol=@nix" "compress=zstd" "noatime" ];
+      options = ["subvol=@nix" "compress=zstd" "noatime"];
     };
     "/boot" = {
       device = "/dev/disk/by-label/ESP";
       fsType = "vfat";
-      options = [ "umask=0077" ];
+      options = ["umask=0077"];
     };
   };
 

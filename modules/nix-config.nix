@@ -1,15 +1,16 @@
 # Nix configuration with experimental features enabled by default
-{ config
-, lib
-, pkgs
-, inputs
-, ...
+{
+  config,
+  lib,
+  pkgs,
+  inputs,
+  ...
 }: {
   # Nix configuration
   nix = {
     settings = {
       # Enable experimental features
-      experimental-features = [ "nix-command" "flakes" ];
+      experimental-features = ["nix-command" "flakes"];
 
       # Performance optimizations
       auto-optimise-store = true;
@@ -47,7 +48,7 @@
       stalled-download-timeout = 300;
 
       # Trust wheel group for nix commands
-      trusted-users = [ "root" "@wheel" ];
+      trusted-users = ["root" "@wheel"];
     };
 
     # Garbage collection

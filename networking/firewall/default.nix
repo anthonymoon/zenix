@@ -1,11 +1,12 @@
-{ config
-, lib
-, pkgs
-, ...
+{
+  config,
+  lib,
+  pkgs,
+  ...
 }: {
   networking.firewall = {
     enable = true;
-    trustedInterfaces = [ "br0" "virbr0" "docker0" ];
+    trustedInterfaces = ["br0" "virbr0" "docker0"];
     allowedTCPPorts = [
       22 # SSH
       80 # HTTP

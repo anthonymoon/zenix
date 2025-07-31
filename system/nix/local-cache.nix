@@ -1,7 +1,8 @@
-{ config
-, lib
-, pkgs
-, ...
+{
+  config,
+  lib,
+  pkgs,
+  ...
 }: {
   # Local binary cache configuration
   nix.settings = {
@@ -32,7 +33,7 @@
     cores = lib.mkDefault 0; # Use all available cores
 
     # Enable content-addressed derivations for better deduplication
-    experimental-features = [ "nix-command" "flakes" "ca-derivations" ];
+    experimental-features = ["nix-command" "flakes" "ca-derivations"];
   };
 
   # Configure nix-serve for local binary cache
@@ -80,5 +81,5 @@
 
   # Optional: Distributed builds configuration
   nix.distributedBuilds = lib.mkDefault false;
-  nix.buildMachines = lib.mkDefault [ ];
+  nix.buildMachines = lib.mkDefault [];
 }

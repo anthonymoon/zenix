@@ -1,13 +1,12 @@
 # System maintenance automation and optimization
-{ config
-, lib
-, pkgs
-, ...
-}:
-let
-  cfg = config.maintenance;
-in
 {
+  config,
+  lib,
+  pkgs,
+  ...
+}: let
+  cfg = config.maintenance;
+in {
   options.maintenance = {
     enable = lib.mkEnableOption "automated system maintenance tasks";
 
@@ -83,7 +82,7 @@ in
     # Nix store optimization
     nix.optimise = lib.mkIf cfg.nix.optimizeStore {
       automatic = true;
-      dates = [ "weekly" ];
+      dates = ["weekly"];
     };
 
     # Filesystem trim for SSDs
@@ -156,7 +155,7 @@ in
 
     systemd.timers."btrfs-maintenance" = lib.mkIf (cfg.filesystem.scrub && config.fileSystems."/".fsType == "btrfs") {
       description = "Btrfs maintenance timer";
-      wantedBy = [ "timers.target" ];
+      wantedBy = ["timers.target"];
       timerConfig = {
         OnCalendar = "weekly";
         Persistent = true;
@@ -165,11 +164,11 @@ in
     };
 
     # ZFS maintenance (if using zfs)
-    services.zfs = lib.mkIf (cfg.filesystem.scrub && builtins.elem "zfs" (config.boot.supportedFilesystems or [ ])) {
+    services.zfs = lib.mkIf (cfg.filesystem.scrub && builtins.elem "zfs" (config.boot.supportedFilesystems or [])) {
       autoScrub = {
         enable = true;
         interval = "monthly";
-        pools = [ ]; # Empty means all pools
+        pools = []; # Empty means all pools
       };
       autoSnapshot = {
         enable = true;
@@ -186,9 +185,9 @@ in
     };
 
     # ZFS additional maintenance
-    systemd.services."zfs-maintenance" = lib.mkIf (cfg.filesystem.scrub && builtins.elem "zfs" (config.boot.supportedFilesystems or [ ])) {
+    systemd.services."zfs-maintenance" = lib.mkIf (cfg.filesystem.scrub && builtins.elem "zfs" (config.boot.supportedFilesystems or [])) {
       description = "ZFS maintenance tasks";
-      after = [ "zfs.target" ];
+      after = ["zfs.target"];
       serviceConfig = {
         Type = "oneshot";
         ExecStart = pkgs.writeShellScript "zfs-maintenance" ''
@@ -265,9 +264,9 @@ in
       };
     };
 
-    systemd.timers."zfs-maintenance" = lib.mkIf (cfg.filesystem.scrub && builtins.elem "zfs" (config.boot.supportedFilesystems or [ ])) {
+    systemd.timers."zfs-maintenance" = lib.mkIf (cfg.filesystem.scrub && builtins.elem "zfs" (config.boot.supportedFilesystems or [])) {
       description = "ZFS maintenance timer";
-      wantedBy = [ "timers.target" ];
+      wantedBy = ["timers.target"];
       timerConfig = {
         OnCalendar = "weekly";
         Persistent = true;
@@ -326,7 +325,7 @@ in
 
     systemd.timers."log-cleanup" = lib.mkIf cfg.logs.cleanup {
       description = "Log cleanup timer";
-      wantedBy = [ "timers.target" ];
+      wantedBy = ["timers.target"];
       timerConfig = {
         OnCalendar = "weekly";
         Persistent = true;
@@ -386,7 +385,7 @@ in
 
     systemd.timers."system-database-update" = lib.mkIf cfg.updates.database {
       description = "System database update timer";
-      wantedBy = [ "timers.target" ];
+      wantedBy = ["timers.target"];
       timerConfig = {
         OnCalendar = "weekly";
         Persistent = true;
@@ -455,7 +454,7 @@ in
 
     systemd.timers."performance-monitor" = {
       description = "Performance monitoring timer";
-      wantedBy = [ "timers.target" ];
+      wantedBy = ["timers.target"];
       timerConfig = {
         OnCalendar = "daily";
         Persistent = true;

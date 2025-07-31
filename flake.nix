@@ -28,51 +28,50 @@
     nixos-hardware.url = "github:NixOS/nixos-hardware";
   };
 
-  outputs =
-    { self
-    , nixpkgs
-    , nixpkgs-stable
-    , disko
-    , lanzaboote
-    , pre-commit-hooks
-    , chaotic
-    , hyprland
-    , nixos-hardware
-    , ...
-    } @ inputs:
-    let
-      system = "x86_64-linux";
-      lib = nixpkgs.lib;
+  outputs = {
+    self,
+    nixpkgs,
+    nixpkgs-stable,
+    disko,
+    lanzaboote,
+    pre-commit-hooks,
+    chaotic,
+    hyprland,
+    nixos-hardware,
+    ...
+  } @ inputs: let
+    system = "x86_64-linux";
+    lib = nixpkgs.lib;
 
-      pkgs = nixpkgs.legacyPackages.${system};
+    pkgs = nixpkgs.legacyPackages.${system};
 
-      # Pre-commit hooks configuration
-      pre-commit-check = pre-commit-hooks.lib.${system}.run {
-        src = ./.;
-        hooks = {
-          alejandra.enable = true;
-          statix.enable = true;
-          deadnix.enable = true;
+    # Pre-commit hooks configuration
+    pre-commit-check = pre-commit-hooks.lib.${system}.run {
+      src = ./.;
+      hooks = {
+        alejandra.enable = true;
+        statix.enable = true;
+        deadnix.enable = true;
 
-          # Custom hooks
-          nix-flake-check = {
-            enable = true;
-            name = "Nix flake check";
-            entry = "${pkgs.writeShellScript "nix-flake-check" ''
+        # Custom hooks
+        nix-flake-check = {
+          enable = true;
+          name = "Nix flake check";
+          entry = "${pkgs.writeShellScript "nix-flake-check" ''
             if [[ $(git diff --cached --name-only | grep -E "\.(nix|lock)$") ]]; then
               echo "Running nix flake check..."
               nix flake check --no-write-lock-file
             fi
           ''}";
-            files = "\\.(nix|lock)$";
-            pass_filenames = false;
-            always_run = true;
-          };
+          files = "\\.(nix|lock)$";
+          pass_filenames = false;
+          always_run = true;
+        };
 
-          nix-eval-check = {
-            enable = true;
-            name = "Check nixos config evaluation";
-            entry = "${pkgs.writeShellScript "nix-eval-check" ''
+        nix-eval-check = {
+          enable = true;
+          name = "Check nixos config evaluation";
+          entry = "${pkgs.writeShellScript "nix-eval-check" ''
             if [[ $(git diff --cached --name-only | grep -E "\.(nix)$") ]]; then
               echo "Testing NixOS configuration evaluation..."
               # Test with a sample configuration
@@ -86,143 +85,138 @@
               fi
             fi
           ''}";
-            files = "\\.nix$";
-            pass_filenames = false;
-            always_run = true;
-          };
+          files = "\\.nix$";
+          pass_filenames = false;
+          always_run = true;
         };
       };
+    };
 
-      # Parse configuration name: hostname.profile1.profile2.profile3
-      parseConfigName = name:
-        let
-          parts = lib.splitString "." name;
-        in
-        {
-          hostname = builtins.head parts;
-          profiles = builtins.tail parts;
-        };
+    # Parse configuration name: hostname.profile1.profile2.profile3
+    parseConfigName = name: let
+      parts = lib.splitString "." name;
+    in {
+      hostname = builtins.head parts;
+      profiles = builtins.tail parts;
+    };
 
-      # Build a system from hostname and profiles
-      mkSystem = configName:
-        let
-          parsed = parseConfigName configName;
-          hostname = parsed.hostname;
-          profiles = parsed.profiles;
+    # Build a system from hostname and profiles
+    mkSystem = configName: let
+      parsed = parseConfigName configName;
+      hostname = parsed.hostname;
+      profiles = parsed.profiles;
 
-          # Check if host-specific config exists
-          hostConfigPath = ./hosts + "/${hostname}/default.nix";
-          hasHostConfig = builtins.pathExists hostConfigPath;
+      # Check if host-specific config exists
+      hostConfigPath = ./hosts + "/${hostname}/default.nix";
+      hasHostConfig = builtins.pathExists hostConfigPath;
 
-          # Exclude hardware detection for test configs
-          includeHardwareDetection = hostname != "test";
-        in
-        nixpkgs.lib.nixosSystem {
-          inherit system;
-          specialArgs = { inherit inputs; };
-
-          modules =
-            [
-              # Disko module for disk management
-              disko.nixosModules.disko
-
-              # Core system configuration
-              ({ config, ... }: {
-                # Base system settings
-                system.stateVersion = "24.11";
-                networking.hostName = hostname;
-              })
-
-              # Nix configuration with experimental features
-              ./modules/nix-config.nix
-            ]
-            # Hardware auto-detection (skip for test configs)
-            ++ lib.optional includeHardwareDetection ./hardware/auto-detect.nix
-            ++ [
-              # Common base configuration
-              ./base
-
-              # Host-specific settings (if exists)
-            ]
-            ++ lib.optional hasHostConfig hostConfigPath
-            ++ [
-              # Core system modules
-              ./users
-              # ./environment/systemPackages  # Disabled temporarily due to package conflicts
-              ./fonts/packages.nix
-              ./nixpkgs
-
-              # Essential services
-              ./services/networking/ssh.nix
-              ./services/system/systemd.nix
-
-              # Software profiles from the config name
-            ]
-            ++ (map (profile: ./profiles + "/${profile}") profiles);
-        };
+      # Exclude hardware detection for test configs
+      includeHardwareDetection = hostname != "test";
     in
-    {
-      # Dynamic configurations with example configurations for validation
-      nixosConfigurations = {
-        # Example configuration for testing - ensures flake check passes
-        "test.headless.stable" = mkSystem "test.headless.stable";
+      nixpkgs.lib.nixosSystem {
+        inherit system;
+        specialArgs = {inherit inputs;};
 
-        # Common configurations for easy installation
-        "workstation.kde.stable" = mkSystem "workstation.kde.stable";
-        "workstation.kde.unstable" = mkSystem "workstation.kde.unstable";
-        "workstation.gnome.stable" = mkSystem "workstation.gnome.stable";
-        "workstation.hyprland.stable" = mkSystem "workstation.hyprland.stable";
+        modules =
+          [
+            # Disko module for disk management
+            disko.nixosModules.disko
+
+            # Core system configuration
+            ({config, ...}: {
+              # Base system settings
+              system.stateVersion = "24.11";
+              networking.hostName = hostname;
+            })
+
+            # Nix configuration with experimental features
+            ./modules/nix-config.nix
+          ]
+          # Hardware auto-detection (skip for test configs)
+          ++ lib.optional includeHardwareDetection ./hardware/auto-detect.nix
+          ++ [
+            # Common base configuration
+            ./base
+
+            # Host-specific settings (if exists)
+          ]
+          ++ lib.optional hasHostConfig hostConfigPath
+          ++ [
+            # Core system modules
+            ./users
+            # ./environment/systemPackages  # Disabled temporarily due to package conflicts
+            ./fonts/packages.nix
+            ./nixpkgs
+
+            # Essential services
+            ./services/networking/ssh.nix
+            ./services/system/systemd.nix
+
+            # Software profiles from the config name
+          ]
+          ++ (map (profile: ./profiles + "/${profile}") profiles);
       };
+  in {
+    # Dynamic configurations with example configurations for validation
+    nixosConfigurations = {
+      # Example configuration for testing - ensures flake check passes
+      "test.headless.stable" = mkSystem "test.headless.stable";
 
-      # Dynamic configuration builder (separate from nixosConfigurations to avoid flake check issues)
-      lib.buildSystem = mkSystem;
+      # Common configurations for easy installation
+      "workstation.kde.stable" = mkSystem "workstation.kde.stable";
+      "workstation.kde.unstable" = mkSystem "workstation.kde.unstable";
+      "workstation.gnome.stable" = mkSystem "workstation.gnome.stable";
+      "workstation.hyprland.stable" = mkSystem "workstation.hyprland.stable";
+    };
 
-      # Disko configurations for installation
-      diskoConfigurations = {
-        default = {
-          disko.devices = {
-            disk = {
-              main = {
-                type = "disk";
-                device = "/dev/sda";
-                content = {
-                  type = "gpt";
-                  partitions = {
-                    ESP = {
-                      priority = 1;
-                      name = "ESP";
-                      start = "1M";
-                      end = "1G";
-                      type = "EF00";
-                      content = {
-                        type = "filesystem";
-                        format = "vfat";
-                        mountpoint = "/boot";
-                        mountOptions = [ "umask=0077" ];
-                      };
+    # Dynamic configuration builder (separate from nixosConfigurations to avoid flake check issues)
+    lib.buildSystem = mkSystem;
+
+    # Disko configurations for installation
+    diskoConfigurations = {
+      default = {
+        disko.devices = {
+          disk = {
+            main = {
+              type = "disk";
+              device = "/dev/sda";
+              content = {
+                type = "gpt";
+                partitions = {
+                  ESP = {
+                    priority = 1;
+                    name = "ESP";
+                    start = "1M";
+                    end = "1G";
+                    type = "EF00";
+                    content = {
+                      type = "filesystem";
+                      format = "vfat";
+                      mountpoint = "/boot";
+                      mountOptions = ["umask=0077"];
                     };
-                    root = {
-                      size = "100%";
-                      content = {
-                        type = "btrfs";
-                        extraArgs = [ "-f" "-L" "nixos" ];
-                        subvolumes = {
-                          "@" = {
-                            mountpoint = "/";
-                            mountOptions = [ "compress=zstd" "noatime" ];
-                          };
-                          "@home" = {
-                            mountpoint = "/home";
-                            mountOptions = [ "compress=zstd" "noatime" ];
-                          };
-                          "@nix" = {
-                            mountpoint = "/nix";
-                            mountOptions = [ "compress=zstd" "noatime" ];
-                          };
-                          "@swap" = {
-                            mountpoint = "/.swap";
-                            swap.swapfile.size = "16G";
-                          };
+                  };
+                  root = {
+                    size = "100%";
+                    content = {
+                      type = "btrfs";
+                      extraArgs = ["-f" "-L" "nixos"];
+                      subvolumes = {
+                        "@" = {
+                          mountpoint = "/";
+                          mountOptions = ["compress=zstd" "noatime"];
+                        };
+                        "@home" = {
+                          mountpoint = "/home";
+                          mountOptions = ["compress=zstd" "noatime"];
+                        };
+                        "@nix" = {
+                          mountpoint = "/nix";
+                          mountOptions = ["compress=zstd" "noatime"];
+                        };
+                        "@swap" = {
+                          mountpoint = "/.swap";
+                          swap.swapfile.size = "16G";
                         };
                       };
                     };
@@ -233,108 +227,109 @@
           };
         };
       };
+    };
 
-      # Helper functions
-      lib = {
-        # List available software profiles
-        profiles = {
-          desktop = [ "kde" "gnome" "hyprland" "niri" ];
-          system = [ "stable" "unstable" "hardened" "chaotic" ];
-          usage = [ "gaming" "headless" ];
-        };
-
-        # Example configurations
-        examples = [
-          "laptop.kde.gaming.unstable"
-          "server.headless.hardened"
-          "desktop.hyprland.gaming.chaotic"
-          "vm.gnome.stable"
-          "workstation.kde.stable"
-        ];
-
-        # buildSystem moved to lib.buildSystem above
+    # Helper functions
+    lib = {
+      # List available software profiles
+      profiles = {
+        desktop = ["kde" "gnome" "hyprland" "niri"];
+        system = ["stable" "unstable" "hardened" "chaotic"];
+        usage = ["gaming" "headless"];
       };
 
-      # Development shell with pre-commit hooks
-      devShells.${system}.default = pkgs.mkShell {
-        packages = with pkgs; [
-          # Nix development tools
-          nixos-rebuild
-          nix-output-monitor
-          nvd
-          alejandra
-          statix
-          deadnix
+      # Example configurations
+      examples = [
+        "laptop.kde.gaming.unstable"
+        "server.headless.hardened"
+        "desktop.hyprland.gaming.chaotic"
+        "vm.gnome.stable"
+        "workstation.kde.stable"
+      ];
 
-          # Disko and installation tools
-          disko.packages.${system}.disko
-          util-linux
-          parted
-          smartmontools
+      # buildSystem moved to lib.buildSystem above
+    };
 
-          # System tools
-          git
-          jq
-          rsync
+    # Development shell with pre-commit hooks
+    devShells.${system}.default = pkgs.mkShell {
+      packages = with pkgs; [
+        # Nix development tools
+        nixos-rebuild
+        nix-output-monitor
+        nvd
+        alejandra
+        statix
+        deadnix
 
-          # Filesystem tools
-          btrfs-progs
-          zfs
+        # Disko and installation tools
+        disko.packages.${system}.disko
+        util-linux
+        parted
+        smartmontools
 
-          # Monitoring and debugging
-          btop
-          iotop
+        # System tools
+        git
+        jq
+        rsync
 
-          # TPM tools (for encryption)
-          tpm2-tools
+        # Filesystem tools
+        btrfs-progs
+        zfs
 
-          # Pre-commit
-          pre-commit
-        ];
+        # Monitoring and debugging
+        btop
+        iotop
 
-        shellHook =
-          pre-commit-check.shellHook
-          + ''
-            echo ""
-            echo "🚀 NixOS Multi-Host Development Environment"
-            echo "==========================================="
-            echo ""
-            echo "📦 Installation commands:"
-            echo "  ./scripts/install-interactive.sh    # Interactive installer"
-            echo "  ./scripts/install-host.sh <config>  # Direct installation"
-            echo ""
-            echo "🔧 Manual disko commands:"
-            echo "  sudo nix run github:nix-community/disko/latest#disko-install -- --flake .#hostname.profile"
-            echo ""
-            echo "🔄 System rebuild:"
-            echo "  sudo nixos-rebuild switch --flake .#hostname.profile"
-            echo ""
-            echo "📋 Available configurations:"
-            echo "  • hostname.kde.gaming.unstable"
-            echo "  • hostname.gnome.stable"
-            echo "  • hostname.headless.hardened"
-            echo "  • hostname.hyprland.gaming.chaotic"
-            echo ""
-            echo "🛠️  Development commands:"
-            echo "  nix flake update      # Update dependencies"
-            echo "  nix fmt              # Format code"
-            echo "  pre-commit run --all # Run all hooks"
-            echo "  git commit           # Commit with pre-commit checks"
-            echo ""
-            echo "🗄️  Available filesystems:"
-            echo "  • btrfs-single: Single disk Btrfs"
-            echo "  • btrfs-luks:   Encrypted Btrfs with TPM2"
-            echo "  • zfs-single:   Single disk ZFS"
-            echo "  • zfs-luks:     Encrypted ZFS with TPM2"
-            echo ""
-          '';
-      };
+        # TPM tools (for encryption)
+        tpm2-tools
 
-      # Apps for installation
-      apps.${system} = {
-        disko-install = {
-          type = "app";
-          program = "${pkgs.writeShellScriptBin "disko-install" ''
+        # Pre-commit
+        pre-commit
+      ];
+
+      shellHook =
+        pre-commit-check.shellHook
+        + ''
+          echo ""
+          echo "🚀 NixOS Multi-Host Development Environment"
+          echo "==========================================="
+          echo ""
+          echo "📦 Installation commands:"
+          echo "  ./scripts/install-interactive.sh    # Interactive installer"
+          echo "  ./scripts/install-host.sh <config>  # Direct installation"
+          echo ""
+          echo "🔧 Manual disko commands:"
+          echo "  sudo nix run github:nix-community/disko/latest#disko-install -- --flake .#hostname.profile"
+          echo ""
+          echo "🔄 System rebuild:"
+          echo "  sudo nixos-rebuild switch --flake .#hostname.profile"
+          echo ""
+          echo "📋 Available configurations:"
+          echo "  • hostname.kde.gaming.unstable"
+          echo "  • hostname.gnome.stable"
+          echo "  • hostname.headless.hardened"
+          echo "  • hostname.hyprland.gaming.chaotic"
+          echo ""
+          echo "🛠️  Development commands:"
+          echo "  nix flake update      # Update dependencies"
+          echo "  nix fmt              # Format code"
+          echo "  pre-commit run --all # Run all hooks"
+          echo "  git commit           # Commit with pre-commit checks"
+          echo ""
+          echo "🗄️  Available filesystems:"
+          echo "  • btrfs-single: Single disk Btrfs"
+          echo "  • btrfs-luks:   Encrypted Btrfs with TPM2"
+          echo "  • zfs-single:   Single disk ZFS"
+          echo "  • zfs-luks:     Encrypted ZFS with TPM2"
+          echo ""
+        '';
+    };
+
+    # Apps for installation
+    apps.${system} = {
+      disko-install = {
+        type = "app";
+        program = "${pkgs.writeShellScriptBin "disko-install" ''
                     #!/usr/bin/env bash
                     set -euo pipefail
 
@@ -503,11 +498,11 @@
                       echo "╚════════════════════════════════════════════════════════════╝"
                     fi
         ''}/bin/disko-install";
-        };
+      };
 
-        mount-system = {
-          type = "app";
-          program = "${pkgs.writeShellScriptBin "mount-system" ''
+      mount-system = {
+        type = "app";
+        program = "${pkgs.writeShellScriptBin "mount-system" ''
           #!/usr/bin/env bash
           set -euo pipefail
 
@@ -522,15 +517,15 @@
           echo "Mounting system for configuration: $CONFIG_NAME"
           exec sudo nix --extra-experimental-features nix-command --extra-experimental-features flakes run github:nix-community/disko#disko-mount -- --flake ".#$CONFIG_NAME"
         ''}/bin/mount-system";
-        };
-      };
-
-      # Formatter
-      formatter.${system} = pkgs.alejandra;
-
-      # Checks
-      checks.${system} = {
-        pre-commit-check = pre-commit-check;
       };
     };
+
+    # Formatter
+    formatter.${system} = pkgs.alejandra;
+
+    # Checks
+    checks.${system} = {
+      pre-commit-check = pre-commit-check;
+    };
+  };
 }

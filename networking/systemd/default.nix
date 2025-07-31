@@ -1,7 +1,8 @@
-{ config
-, lib
-, pkgs
-, ...
+{
+  config,
+  lib,
+  pkgs,
+  ...
 }: {
   systemd.network = {
     enable = true;
@@ -52,7 +53,7 @@
   services.resolved = {
     enable = true;
     dnssec = "false";
-    fallbackDns = [ "1.1.1.1" "8.8.8.8" ];
+    fallbackDns = ["1.1.1.1" "8.8.8.8"];
     llmnr = "true";
     extraConfig = ''
       MulticastDNS=yes

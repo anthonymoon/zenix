@@ -1,11 +1,12 @@
-{ config
-, lib
-, pkgs
-, ...
+{
+  config,
+  lib,
+  pkgs,
+  ...
 }: {
   # Intel CPU configuration (auto-detected)
   boot = {
-    kernelModules = [ "kvm-intel" ];
+    kernelModules = ["kvm-intel"];
     kernelParams = lib.mkDefault [
       "intel_iommu=on"
       "intel_pstate=active"

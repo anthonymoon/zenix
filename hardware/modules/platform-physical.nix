@@ -1,7 +1,8 @@
-{ config
-, lib
-, pkgs
-, ...
+{
+  config,
+  lib,
+  pkgs,
+  ...
 }: {
   # Physical hardware platform (auto-detected)
   hardware = {
@@ -26,5 +27,5 @@
 
   services.thermald.enable =
     lib.mkDefault
-      (config.hardware.cpu.intel.updateMicrocode or false);
+    (config.hardware.cpu.intel.updateMicrocode or false);
 }

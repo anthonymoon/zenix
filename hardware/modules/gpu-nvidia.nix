@@ -1,14 +1,15 @@
-{ config
-, lib
-, pkgs
-, ...
+{
+  config,
+  lib,
+  pkgs,
+  ...
 }: {
   # NVIDIA GPU configuration (auto-detected)
   boot = {
     kernelParams = lib.mkDefault [
       "nvidia-drm.modeset=1"
     ];
-    blacklistedKernelModules = [ "nouveau" ];
+    blacklistedKernelModules = ["nouveau"];
   };
 
   hardware.nvidia = {
