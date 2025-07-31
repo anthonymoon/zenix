@@ -1,9 +1,4 @@
-{
-  config,
-  lib,
-  pkgs,
-  ...
-}: {
+{ config, lib, pkgs, ... }: {
   # Kernel modules and settings for advanced hardware support
 
   boot = {
@@ -105,6 +100,6 @@
 
   # Security note for MSR access
   warnings =
-    lib.optional config.boot.kernelParams
+    lib.optional (lib.elem "msr.allow_writes=on" config.boot.kernelParams)
     "MSR write access is enabled. This can be a security risk. Only use with trusted software.";
 }

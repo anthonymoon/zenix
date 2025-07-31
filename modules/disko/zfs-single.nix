@@ -1,36 +1,32 @@
 # ZFS single disk configuration with NVMe optimizations
-{
-  config,
-  lib,
-  pkgs,
-  ...
-}: let
+{ config, lib, pkgs, ... }:
+let
   # Import disk detection utilities
-  diskLib = import ../../lib/disk-detection.nix {inherit lib pkgs;};
+  diskLib = import ../../lib/disk-detection.nix { inherit lib pkgs; };
 
   # Auto-detect the primary disk with fallback
-  primaryDisk =
-    config.disko.primaryDisk or (diskLib.detectPrimaryDisk {
-      preferNvme = true;
-      preferSSD = true;
-      minSizeGB = 64; # Minimum 64GB for ZFS system
-    });
+  primaryDisk = config.disko.primaryDisk or (diskLib.detectPrimaryDisk {
+    preferNvme = true;
+    preferSSD = true;
+    minSizeGB = 64; # Minimum 64GB for ZFS system
+  });
 
   # Generate a stable, unique hostId from hostname
   # This ensures ZFS pools can be imported correctly
-  generateHostId = hostname: let
-    # Hash the hostname to get a stable ID
-    hash = builtins.hashString "sha256" hostname;
-    # Take first 8 characters of the hash
-    hostId = builtins.substring 0 8 hash;
-  in
-    hostId;
+  generateHostId = hostname:
+    let
+      # Hash the hostname to get a stable ID
+      hash = builtins.hashString "sha256" hostname;
+      # Take first 8 characters of the hash
+      hostId = builtins.substring 0 8 hash;
+    in hostId;
 in {
   # Add configuration options
   options.disko = {
     primaryDisk = lib.mkOption {
       type = lib.types.str;
-      description = "Primary disk to use for installation (auto-detected if not specified)";
+      description =
+        "Primary disk to use for installation (auto-detected if not specified)";
     };
   };
 
@@ -51,7 +47,7 @@ in {
     };
 
     # Enable ZFS support
-    boot.supportedFilesystems = ["zfs"];
+    boot.supportedFilesystems = [ "zfs" ];
     boot.zfs.forceImportRoot = false;
 
     # Enable ZFS services with optimizations
@@ -163,10 +159,7 @@ in {
           };
 
           # NVMe-optimized mount options
-          mountOptions = [
-            "noatime"
-            "nodiratime"
-          ];
+          mountOptions = [ "noatime" "nodiratime" ];
 
           datasets = {
             "root" = {
@@ -246,9 +239,7 @@ in {
     # Additional boot configuration for ZFS
     boot = {
       # Include necessary modules
-      initrd.availableKernelModules = [
-        "zfs"
-      ];
+      initrd.availableKernelModules = [ "zfs" ];
 
       # ZFS-specific settings
       initrd.postDeviceCommands = lib.mkAfter ''

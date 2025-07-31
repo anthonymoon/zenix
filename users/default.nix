@@ -1,18 +1,8 @@
-{
-  config,
-  lib,
-  pkgs,
-  ...
-}: {
-  imports = [
-    ./amoon
-    ./root
-  ];
+{ config, lib, pkgs, ... }: {
+  imports = [ ./amoon ./root ];
 
   # Define custom groups
-  users.groups.media = {
-    gid = 993;
-  };
+  users.groups.media = { gid = 993; };
 
   # Default user settings
   users = {

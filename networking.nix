@@ -1,12 +1,8 @@
-{
-  config,
-  pkgs,
-  lib,
-  ...
-}: {
+{ config, pkgs, lib, ... }: {
   # Hostname
   networking.hostName = "nixos"; # Change this to your preferred hostname
-  networking.hostId = "12345678"; # Required for ZFS, generate with: head -c 8 /etc/machine-id
+  networking.hostId =
+    "12345678"; # Required for ZFS, generate with: head -c 8 /etc/machine-id
 
   # Disable NetworkManager in favor of systemd-networkd
   networking.networkmanager.enable = false;
@@ -19,8 +15,8 @@
   services.resolved = {
     enable = true;
     dnssec = "false";
-    domains = ["~."];
-    fallbackDns = ["94.140.14.14" "94.140.15.15"];
+    domains = [ "~." ];
+    fallbackDns = [ "94.140.14.14" "94.140.15.15" ];
     llmnr = "true";
     extraConfig = ''
       DNSStubListener=no
@@ -54,9 +50,7 @@
           LLDP = true;
           EmitLLDP = true;
         };
-        linkConfig = {
-          RequiredForOnline = "no";
-        };
+        linkConfig = { RequiredForOnline = "no"; };
       };
 
       # Intel X710 Port 1
@@ -70,20 +64,16 @@
           LLDP = true;
           EmitLLDP = true;
         };
-        linkConfig = {
-          RequiredForOnline = "no";
-        };
+        linkConfig = { RequiredForOnline = "no"; };
       };
 
       # Bridge network configuration
       "30-virbr0" = {
-        matchConfig = {
-          Name = "virbr0";
-        };
+        matchConfig = { Name = "virbr0"; };
         networkConfig = {
           Address = "10.10.10.10/23";
           Gateway = "10.10.10.1";
-          DNS = ["94.140.14.14" "94.140.15.15"];
+          DNS = [ "94.140.14.14" "94.140.15.15" ];
           IPForward = "ipv4";
           IPMasquerade = "ipv4";
           LLDP = true;
@@ -98,33 +88,25 @@
           RequiredForOnline = "yes";
           BindCarrier = "ens6*";
         };
-        routes = [
-          {
-            routeConfig = {
-              Gateway = "10.10.10.1";
-              Metric = 100;
-              GatewayOnLink = true;
-            };
-          }
-        ];
+        routes = [{
+          routeConfig = {
+            Gateway = "10.10.10.1";
+            Metric = 100;
+            GatewayOnLink = true;
+          };
+        }];
       };
 
       # Default configuration for other interfaces
       "99-default" = {
-        matchConfig = {
-          Name = "en* eth*";
-        };
+        matchConfig = { Name = "en* eth*"; };
         networkConfig = {
           DHCP = "yes";
           LLDP = true;
           EmitLLDP = true;
         };
-        dhcpV4Config = {
-          RouteMetric = 1024;
-        };
-        linkConfig = {
-          RequiredForOnline = "no";
-        };
+        dhcpV4Config = { RouteMetric = 1024; };
+        linkConfig = { RequiredForOnline = "no"; };
       };
     };
   };
@@ -136,7 +118,7 @@
   };
 
   # DNS configuration
-  networking.nameservers = ["94.140.14.14" "94.140.15.15"];
+  networking.nameservers = [ "94.140.14.14" "94.140.15.15" ];
 
   # Enable LLDP
   services.lldpd.enable = true;
@@ -145,5 +127,5 @@
   # networking.wireless.enable = true;
 
   # Additional network optimizations
-  boot.kernelModules = ["tcp_bbr"];
+  boot.kernelModules = [ "tcp_bbr" ];
 }

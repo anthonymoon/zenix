@@ -1,9 +1,4 @@
-{
-  config,
-  lib,
-  pkgs,
-  ...
-}: {
+{ config, lib, pkgs, ... }: {
   # Boot loader configuration
   boot.loader = {
     systemd-boot.enable = true;
@@ -15,19 +10,19 @@
   fileSystems."/" = {
     device = "/dev/disk/by-label/nixos";
     fsType = "btrfs";
-    options = ["subvol=@" "compress=zstd" "noatime"];
+    options = [ "subvol=@" "compress=zstd" "noatime" ];
   };
 
   fileSystems."/home" = {
     device = "/dev/disk/by-label/nixos";
     fsType = "btrfs";
-    options = ["subvol=@home" "compress=zstd" "noatime"];
+    options = [ "subvol=@home" "compress=zstd" "noatime" ];
   };
 
   fileSystems."/nix" = {
     device = "/dev/disk/by-label/nixos";
     fsType = "btrfs";
-    options = ["subvol=@nix" "compress=zstd" "noatime"];
+    options = [ "subvol=@nix" "compress=zstd" "noatime" ];
   };
 
   fileSystems."/boot" = {
@@ -35,11 +30,7 @@
     fsType = "vfat";
   };
 
-  swapDevices = [
-    {
-      device = "/.swap/swapfile";
-    }
-  ];
+  swapDevices = [{ device = "/.swap/swapfile"; }];
 
   # Network configuration
   networking.hostName = "workstation";

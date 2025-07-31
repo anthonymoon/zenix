@@ -1,9 +1,4 @@
-{
-  config,
-  lib,
-  pkgs,
-  ...
-}: {
+{ config, lib, pkgs, ... }: {
   # Core packages that should be available on all systems
   environment.systemPackages = with pkgs; [
     # AI/ML Tools
@@ -64,7 +59,7 @@
     nethogs
     # dool  # Not in nixpkgs - use dstat or sar instead
     bandwhich
-    hwlatdetect
+    rt-tests # includes hwlatdetect
     blktrace
     strace
 
@@ -117,7 +112,7 @@
 
     # Browsers
     firefox
-    zen-browser
+    # zen-browser  # Not in nixpkgs
     microsoft-edge
     tor-browser
     # thorium  # Not in nixpkgs

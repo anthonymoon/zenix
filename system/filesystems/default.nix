@@ -1,28 +1,10 @@
-{
-  config,
-  lib,
-  pkgs,
-  ...
-}: {
+{ config, lib, pkgs, ... }: {
   # Enable support for various filesystems
   boot = {
-    supportedFilesystems = [
-      "btrfs"
-      "xfs"
-      "ntfs"
-      "vfat"
-      "exfat"
-      "apfs"
-    ];
+    supportedFilesystems = [ "btrfs" "xfs" "ntfs" "vfat" "exfat" "apfs" ];
 
     # Kernel modules for filesystems
-    kernelModules = [
-      "btrfs"
-      "xfs"
-      "ntfs3"
-      "vfat"
-      "exfat"
-    ];
+    kernelModules = [ "btrfs" "xfs" "ntfs3" "vfat" "exfat" ];
   };
 
   # Filesystem utilities
@@ -58,8 +40,7 @@
     dust
 
     # Recovery tools
-    testdisk
-    photorec
+    testdisk # includes photorec
     ddrescue
     extundelete
   ];

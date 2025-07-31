@@ -1,9 +1,4 @@
-{
-  config,
-  lib,
-  pkgs,
-  ...
-}: {
+{ config, lib, pkgs, ... }: {
   # Security hardened profile
 
   # Hardened kernel
@@ -60,8 +55,8 @@
 
   # Restrict nix
   nix.settings = {
-    allowed-users = ["@wheel"];
-    trusted-users = ["root"];
+    allowed-users = [ "@wheel" ];
+    trusted-users = [ "root" ];
     sandbox = true;
   };
 

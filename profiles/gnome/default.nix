@@ -1,9 +1,4 @@
-{
-  config,
-  lib,
-  pkgs,
-  ...
-}: {
+{ config, lib, pkgs, ... }: {
   # Enable GNOME with Wayland
   services.xserver = {
     displayManager.gdm = {
@@ -30,5 +25,5 @@
   ];
 
   # Enable GNOME features
-  services.udev.packages = with pkgs; [gnome.gnome-settings-daemon];
+  services.udev.packages = with pkgs; [ gnome.gnome-settings-daemon ];
 }

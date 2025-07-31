@@ -1,12 +1,7 @@
-{
-  config,
-  lib,
-  pkgs,
-  ...
-}: {
+{ config, lib, pkgs, ... }: {
   networking.firewall = {
     enable = true;
-    trustedInterfaces = ["br0" "virbr0" "docker0"];
+    trustedInterfaces = [ "br0" "virbr0" "docker0" ];
     allowedTCPPorts = [
       22 # SSH
       80 # HTTP
@@ -31,18 +26,16 @@
       5353 # mDNS
       5355 # LLMNR
     ];
-    allowedTCPPortRanges = [
-      {
-        from = 1714;
-        to = 1764;
-      } # KDE Connect
-    ];
-    allowedUDPPortRanges = [
-      {
-        from = 1714;
-        to = 1764;
-      } # KDE Connect
-    ];
+    allowedTCPPortRanges = [{
+      from = 1714;
+      to = 1764;
+    } # KDE Connect
+      ];
+    allowedUDPPortRanges = [{
+      from = 1714;
+      to = 1764;
+    } # KDE Connect
+      ];
     extraCommands = ''
       # Allow ICMP
       iptables -A INPUT -p icmp -j ACCEPT

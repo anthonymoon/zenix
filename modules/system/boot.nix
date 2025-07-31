@@ -1,67 +1,61 @@
 # Boot and initrd configuration optimized for modern hardware
-{
-  config,
-  lib,
-  pkgs,
-  ...
-}: {
+{ config, lib, pkgs, ... }: {
   # Essential boot configuration
   boot = {
     # Kernel modules for initrd
     initrd = {
       # Core modules needed for boot on modern systems
-      availableKernelModules =
-        [
-          # Storage controllers (NVMe, SATA, USB)
-          "nvme"
-          "xhci_pci"
-          "ehci_pci"
-          "ahci"
-          "usbhid"
-          "usb_storage"
-          "sd_mod"
-          "sr_mod"
+      availableKernelModules = [
+        # Storage controllers (NVMe, SATA, USB)
+        "nvme"
+        "xhci_pci"
+        "ehci_pci"
+        "ahci"
+        "usbhid"
+        "usb_storage"
+        "sd_mod"
+        "sr_mod"
 
-          # Network controllers for network boot/recovery
-          "e1000e"
-          "igb"
-          "r8169"
-          "8139too"
+        # Network controllers for network boot/recovery
+        "e1000e"
+        "igb"
+        "r8169"
+        "8139too"
 
-          # Filesystem support
-          "ext4"
-          "btrfs"
-          "vfat"
-          "ntfs"
+        # Filesystem support
+        "ext4"
+        "btrfs"
+        "vfat"
+        "ntfs"
 
-          # Encryption support
-          "dm_crypt"
-          "dm_mod"
-          "aesni_intel"
-          "cryptd"
-          "sha256_ssse3"
-          "sha1_ssse3"
+        # Encryption support
+        "dm_crypt"
+        "dm_mod"
+        "aesni_intel"
+        "cryptd"
+        "sha256_ssse3"
+        "sha1_ssse3"
 
-          # RAID support
-          "md_mod"
-          "raid0"
-          "raid1"
-          "raid10"
-          "raid456"
+        # RAID support
+        "md_mod"
+        "raid0"
+        "raid1"
+        "raid10"
+        "raid456"
 
-          # LVM support
-          "dm_snapshot"
-          "dm_mirror"
-          "dm_raid"
+        # LVM support
+        "dm_snapshot"
+        "dm_mirror"
+        "dm_raid"
 
-          # Input devices
-          "hid_generic"
-          "hid_lenovo"
-          "hid_apple"
-          "hid_roccat"
-          "hid_logitech_hidpp"
-        ]
-        ++ lib.optionals (builtins.any (fs: fs == "zfs") (config.boot.supportedFilesystems or [])) [
+        # Input devices
+        "hid_generic"
+        "hid_lenovo"
+        "hid_apple"
+        "hid_roccat"
+        "hid_logitech_hidpp"
+      ] ++ lib.optionals (builtins.any (fs: fs == "zfs")
+        (config.boot.supportedFilesystems or [ ])) [
           # ZFS modules
           "zfs"
           "spl"
@@ -90,37 +84,36 @@
       ];
 
       # Include essential tools in initrd
-      extraUtilsCommands =
-        ''
-          # Filesystem tools
-          copy_bin_and_libs ${pkgs.btrfs-progs}/bin/btrfs
-          copy_bin_and_libs ${pkgs.e2fsprogs}/bin/e2fsck
-          copy_bin_and_libs ${pkgs.e2fsprogs}/bin/resize2fs
-          copy_bin_and_libs ${pkgs.util-linux}/bin/blkid
-          copy_bin_and_libs ${pkgs.util-linux}/bin/mount
-          copy_bin_and_libs ${pkgs.util-linux}/bin/umount
-          copy_bin_and_libs ${pkgs.util-linux}/bin/lsblk
-          copy_bin_and_libs ${pkgs.util-linux}/bin/wipefs
+      extraUtilsCommands = ''
+        # Filesystem tools
+        copy_bin_and_libs ${pkgs.btrfs-progs}/bin/btrfs
+        copy_bin_and_libs ${pkgs.e2fsprogs}/bin/e2fsck
+        copy_bin_and_libs ${pkgs.e2fsprogs}/bin/resize2fs
+        copy_bin_and_libs ${pkgs.util-linux}/bin/blkid
+        copy_bin_and_libs ${pkgs.util-linux}/bin/mount
+        copy_bin_and_libs ${pkgs.util-linux}/bin/umount
+        copy_bin_and_libs ${pkgs.util-linux}/bin/lsblk
+        copy_bin_and_libs ${pkgs.util-linux}/bin/wipefs
 
-          # Disk tools
-          copy_bin_and_libs ${pkgs.smartmontools}/bin/smartctl
-          copy_bin_and_libs ${pkgs.hdparm}/bin/hdparm
+        # Disk tools
+        copy_bin_and_libs ${pkgs.smartmontools}/bin/smartctl
+        copy_bin_and_libs ${pkgs.hdparm}/bin/hdparm
 
-          # Network tools (for debugging)
-          copy_bin_and_libs ${pkgs.iproute2}/bin/ip
-          copy_bin_and_libs ${pkgs.iputils}/bin/ping
+        # Network tools (for debugging)
+        copy_bin_and_libs ${pkgs.iproute2}/bin/ip
+        copy_bin_and_libs ${pkgs.iputils}/bin/ping
 
-          # System tools
-          copy_bin_and_libs ${pkgs.pciutils}/bin/lspci
-          copy_bin_and_libs ${pkgs.usbutils}/bin/lsusb
-          copy_bin_and_libs ${pkgs.coreutils}/bin/lscpu
+        # System tools
+        copy_bin_and_libs ${pkgs.pciutils}/bin/lspci
+        copy_bin_and_libs ${pkgs.usbutils}/bin/lsusb
+        copy_bin_and_libs ${pkgs.coreutils}/bin/lscpu
 
-          # Text processing for debugging
-          copy_bin_and_libs ${pkgs.gnugrep}/bin/grep
-          copy_bin_and_libs ${pkgs.gnused}/bin/sed
-          copy_bin_and_libs ${pkgs.gawk}/bin/awk
-        ''
-        + lib.optionalString (builtins.any (fs: fs == "zfs") (config.boot.supportedFilesystems or [])) ''
+        # Text processing for debugging
+        copy_bin_and_libs ${pkgs.gnugrep}/bin/grep
+        copy_bin_and_libs ${pkgs.gnused}/bin/sed
+        copy_bin_and_libs ${pkgs.gawk}/bin/awk
+      '' + lib.optionalString (builtins.any (fs: fs == "zfs")
+        (config.boot.supportedFilesystems or [ ])) ''
           # ZFS tools
           copy_bin_and_libs ${pkgs.zfs}/bin/zfs
           copy_bin_and_libs ${pkgs.zfs}/bin/zpool
@@ -172,22 +165,22 @@
         ssh = {
           enable = lib.mkDefault false;
           port = 22;
-          authorizedKeys = []; # Add your SSH keys here if needed
-          hostKeys = []; # Will generate automatically
+          authorizedKeys = [ ]; # Add your SSH keys here if needed
+          hostKeys = [ ]; # Will generate automatically
         };
       };
 
       # SystemD in initrd for modern boot (optional, but recommended for encryption)
       systemd = {
-        enable = lib.mkDefault false; # Enable for advanced features like TPM2 unlock
-        emergencyAccess = "$6$rounds=1000000$..."; # Add password hash for emergency access
+        enable =
+          lib.mkDefault false; # Enable for advanced features like TPM2 unlock
+        emergencyAccess =
+          "$6$rounds=1000000$..."; # Add password hash for emergency access
 
         # Services in initrd
         services = lib.mkIf config.boot.initrd.systemd.enable {
           # Emergency shell access
-          emergency = {
-            wants = ["systemd-ask-password-console.service"];
-          };
+          emergency = { wants = [ "systemd-ask-password-console.service" ]; };
         };
       };
 
@@ -196,7 +189,7 @@
 
       # Initrd compression (zstd is fastest to decompress)
       compressor = "zstd";
-      compressorArgs = ["-1" "-T0"]; # Fast compression, all threads
+      compressorArgs = [ "-1" "-T0" ]; # Fast compression, all threads
     };
 
     # Use latest kernel for best hardware support

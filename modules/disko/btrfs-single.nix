@@ -1,26 +1,22 @@
 # Btrfs single disk configuration with auto-detection (no encryption)
-{
-  config,
-  lib,
-  pkgs,
-  ...
-}: let
+{ config, lib, pkgs, ... }:
+let
   # Import disk detection utilities
-  diskLib = import ../../lib/disk-detection.nix {inherit lib pkgs;};
+  diskLib = import ../../lib/disk-detection.nix { inherit lib pkgs; };
 
   # Auto-detect the primary disk with fallback
-  primaryDisk =
-    config.disko.primaryDisk or (diskLib.detectPrimaryDisk {
-      preferNvme = true;
-      preferSSD = true;
-      minSizeGB = 32; # Minimum 32GB for a usable system
-    });
+  primaryDisk = config.disko.primaryDisk or (diskLib.detectPrimaryDisk {
+    preferNvme = true;
+    preferSSD = true;
+    minSizeGB = 32; # Minimum 32GB for a usable system
+  });
 in {
   # Add configuration options
   options.disko = {
     primaryDisk = lib.mkOption {
       type = lib.types.str;
-      description = "Primary disk to use for installation (auto-detected if not specified)";
+      description =
+        "Primary disk to use for installation (auto-detected if not specified)";
     };
   };
 
@@ -164,13 +160,13 @@ in {
     services.btrfs.autoScrub = {
       enable = true;
       interval = "monthly";
-      fileSystems = ["/"];
+      fileSystems = [ "/" ];
     };
 
     # Additional boot configuration for Btrfs
     boot = {
       # Include necessary modules
-      initrd.availableKernelModules = ["btrfs"];
+      initrd.availableKernelModules = [ "btrfs" ];
 
       # Btrfs-specific kernel parameters
       kernelParams = [

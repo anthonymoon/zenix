@@ -1,9 +1,4 @@
-{
-  config,
-  lib,
-  pkgs,
-  ...
-}: {
+{ config, lib, pkgs, ... }: {
   environment.systemPackages = with pkgs; [
     # Media processing
     ffmpeg-full

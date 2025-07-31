@@ -1,9 +1,4 @@
-{
-  config,
-  lib,
-  pkgs,
-  ...
-}: {
+{ config, lib, pkgs, ... }: {
   # Common configuration shared by all hosts
   imports = [
     # System-wide configurations
@@ -32,11 +27,9 @@
   # Common boot settings
   boot = {
     tmp.cleanOnBoot = true;
-    kernel.sysctl = {
-      "kernel.sysrq" = 1;
-    };
+    kernel.sysctl = { "kernel.sysrq" = 1; };
   };
 
   # Enable flakes by default
-  nix.settings.experimental-features = ["nix-command" "flakes"];
+  nix.settings.experimental-features = [ "nix-command" "flakes" ];
 }

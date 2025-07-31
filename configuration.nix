@@ -1,9 +1,4 @@
-{
-  config,
-  pkgs,
-  lib,
-  ...
-}: {
+{ config, pkgs, lib, ... }: {
   imports = [
     ./hardware-configuration.nix
     ./packages.nix
@@ -15,7 +10,8 @@
 
   # Boot configuration
   boot = {
-    kernelPackages = pkgs.linuxPackages_cachyos; # You may need to use a different kernel package
+    kernelPackages =
+      pkgs.linuxPackages_cachyos; # You may need to use a different kernel package
     kernelParams = [
       "apparmor=0"
       "cryptomgr.notests"
@@ -43,10 +39,8 @@
     ];
 
     # Kernel modules
-    blacklistedKernelModules = ["nouveau" "amdgpu" "radeon"];
-    extraModulePackages = with config.boot.kernelPackages; [
-      nvidia_x11
-    ];
+    blacklistedKernelModules = [ "nouveau" "amdgpu" "radeon" ];
+    extraModulePackages = with config.boot.kernelPackages; [ nvidia_x11 ];
 
     # Kernel sysctl settings
     kernel.sysctl = {
@@ -152,7 +146,7 @@
     };
 
     # Support for ZFS
-    supportedFilesystems = ["zfs" "btrfs"];
+    supportedFilesystems = [ "zfs" "btrfs" ];
     zfs.forceImportRoot = false;
   };
 
@@ -189,7 +183,7 @@
   # Nix configuration
   nix = {
     settings = {
-      experimental-features = ["nix-command" "flakes"];
+      experimental-features = [ "nix-command" "flakes" ];
       auto-optimise-store = true;
     };
   };

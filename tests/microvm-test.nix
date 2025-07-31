@@ -1,8 +1,5 @@
-{
-  pkgs,
-  lib,
-  ...
-}: let
+{ pkgs, lib, ... }:
+let
   testFlake = "/tmp/nixos-fun";
   testConfig = "workstation.kde.stable";
 in {
@@ -10,17 +7,13 @@ in {
   name = "nixos-fun-disko-install-test";
 
   nodes = {
-    installer = {
-      config,
-      pkgs,
-      ...
-    }: {
+    installer = { config, pkgs, ... }: {
       # Enable required features
       virtualisation.diskSize = 8192; # 8GB disk
       virtualisation.memorySize = 4096; # 4GB RAM
 
       # Enable experimental features
-      nix.settings.experimental-features = ["nix-command" "flakes"];
+      nix.settings.experimental-features = [ "nix-command" "flakes" ];
 
       # Add our flake source
       environment.systemPackages = with pkgs; [
@@ -36,7 +29,7 @@ in {
       systemd.network.enable = true;
 
       # Set up test disk
-      virtualisation.emptyDiskImages = [2048]; # 2GB test disk
+      virtualisation.emptyDiskImages = [ 2048 ]; # 2GB test disk
     };
   };
 

@@ -1,11 +1,6 @@
 # System maintenance automation and optimization
-{
-  config,
-  lib,
-  pkgs,
-  ...
-}: let
-  cfg = config.maintenance;
+{ config, lib, pkgs, ... }:
+let cfg = config.maintenance;
 in {
   options.maintenance = {
     enable = lib.mkEnableOption "automated system maintenance tasks";
@@ -82,7 +77,7 @@ in {
     # Nix store optimization
     nix.optimise = lib.mkIf cfg.nix.optimizeStore {
       automatic = true;
-      dates = ["weekly"];
+      dates = [ "weekly" ];
     };
 
     # Filesystem trim for SSDs
@@ -92,187 +87,192 @@ in {
     };
 
     # Btrfs maintenance (if using btrfs)
-    systemd.services."btrfs-maintenance" = lib.mkIf (cfg.filesystem.scrub && config.fileSystems."/".fsType == "btrfs") {
-      description = "Btrfs filesystem maintenance";
-      serviceConfig = {
-        Type = "oneshot";
-        ExecStart = pkgs.writeShellScript "btrfs-maintenance" ''
-          set -euo pipefail
+    systemd.services."btrfs-maintenance" = lib.mkIf
+      (cfg.filesystem.scrub && config.fileSystems."/".fsType == "btrfs") {
+        description = "Btrfs filesystem maintenance";
+        serviceConfig = {
+          Type = "oneshot";
+          ExecStart = pkgs.writeShellScript "btrfs-maintenance" ''
+            set -euo pipefail
 
-          # Function to log with timestamp
-          log() {
-            echo "$(date '+%Y-%m-%d %H:%M:%S') [btrfs-maintenance] $*"
-          }
+            # Function to log with timestamp
+            log() {
+              echo "$(date '+%Y-%m-%d %H:%M:%S') [btrfs-maintenance] $*"
+            }
 
-          log "Starting Btrfs maintenance..."
+            log "Starting Btrfs maintenance..."
 
-          # Get all Btrfs filesystems
-          BTRFS_MOUNTS=$(${pkgs.findutils}/bin/find /proc/self/mounts -exec ${pkgs.gnugrep}/bin/grep -E '\sbtrfs\s' {} \; | ${pkgs.gawk}/bin/awk '{print $2}' | sort -u)
+            # Get all Btrfs filesystems
+            BTRFS_MOUNTS=$(${pkgs.findutils}/bin/find /proc/self/mounts -exec ${pkgs.gnugrep}/bin/grep -E '\sbtrfs\s' {} \; | ${pkgs.gawk}/bin/awk '{print $2}' | sort -u)
 
-          if [ -z "$BTRFS_MOUNTS" ]; then
-            log "No Btrfs filesystems found"
-            exit 0
-          fi
+            if [ -z "$BTRFS_MOUNTS" ]; then
+              log "No Btrfs filesystems found"
+              exit 0
+            fi
 
-          for mount in $BTRFS_MOUNTS; do
-            log "Processing Btrfs filesystem: $mount"
+            for mount in $BTRFS_MOUNTS; do
+              log "Processing Btrfs filesystem: $mount"
 
-            # Check if it's the first day of the month for scrub
-            if [[ $(date +%d) -eq 1 ]]; then
-              log "Running monthly scrub on $mount"
-              if ${pkgs.btrfs-progs}/bin/btrfs scrub start -B "$mount" 2>/dev/null; then
-                log "Scrub completed successfully on $mount"
+              # Check if it's the first day of the month for scrub
+              if [[ $(date +%d) -eq 1 ]]; then
+                log "Running monthly scrub on $mount"
+                if ${pkgs.btrfs-progs}/bin/btrfs scrub start -B "$mount" 2>/dev/null; then
+                  log "Scrub completed successfully on $mount"
+                else
+                  log "Warning: Scrub failed on $mount"
+                fi
+              fi
+
+              # Weekly balance with usage filters to avoid unnecessary work
+              log "Running balance on $mount"
+              if ${pkgs.btrfs-progs}/bin/btrfs balance start -dusage=50 -musage=50 "$mount" 2>/dev/null; then
+                log "Balance completed on $mount"
               else
-                log "Warning: Scrub failed on $mount"
+                log "Warning: Balance failed on $mount (this may be normal if already balanced)"
               fi
-            fi
 
-            # Weekly balance with usage filters to avoid unnecessary work
-            log "Running balance on $mount"
-            if ${pkgs.btrfs-progs}/bin/btrfs balance start -dusage=50 -musage=50 "$mount" 2>/dev/null; then
-              log "Balance completed on $mount"
-            else
-              log "Warning: Balance failed on $mount (this may be normal if already balanced)"
-            fi
-
-            # Defragment specific directories that benefit from it
-            for dir in "$mount/var/log" "$mount/var/cache"; do
-              if [ -d "$dir" ]; then
-                log "Defragmenting $dir"
-                ${pkgs.btrfs-progs}/bin/btrfs filesystem defragment -r -czstd "$dir" 2>/dev/null || log "Warning: Defragmentation failed for $dir"
-              fi
+              # Defragment specific directories that benefit from it
+              for dir in "$mount/var/log" "$mount/var/cache"; do
+                if [ -d "$dir" ]; then
+                  log "Defragmenting $dir"
+                  ${pkgs.btrfs-progs}/bin/btrfs filesystem defragment -r -czstd "$dir" 2>/dev/null || log "Warning: Defragmentation failed for $dir"
+                fi
+              done
             done
-          done
 
-          # Global trim operation
-          log "Running fstrim on all mounted filesystems"
-          ${pkgs.util-linux}/bin/fstrim -av 2>/dev/null || log "Warning: Some fstrim operations failed"
+            # Global trim operation
+            log "Running fstrim on all mounted filesystems"
+            ${pkgs.util-linux}/bin/fstrim -av 2>/dev/null || log "Warning: Some fstrim operations failed"
 
-          log "Btrfs maintenance completed"
-        '';
+            log "Btrfs maintenance completed"
+          '';
+        };
       };
-    };
 
-    systemd.timers."btrfs-maintenance" = lib.mkIf (cfg.filesystem.scrub && config.fileSystems."/".fsType == "btrfs") {
-      description = "Btrfs maintenance timer";
-      wantedBy = ["timers.target"];
-      timerConfig = {
-        OnCalendar = "weekly";
-        Persistent = true;
-        RandomizedDelaySec = "1h"; # Randomize start time to avoid load spikes
+    systemd.timers."btrfs-maintenance" = lib.mkIf
+      (cfg.filesystem.scrub && config.fileSystems."/".fsType == "btrfs") {
+        description = "Btrfs maintenance timer";
+        wantedBy = [ "timers.target" ];
+        timerConfig = {
+          OnCalendar = "weekly";
+          Persistent = true;
+          RandomizedDelaySec = "1h"; # Randomize start time to avoid load spikes
+        };
       };
-    };
 
     # ZFS maintenance (if using zfs)
-    services.zfs = lib.mkIf (cfg.filesystem.scrub && builtins.elem "zfs" (config.boot.supportedFilesystems or [])) {
-      autoScrub = {
-        enable = true;
-        interval = "monthly";
-        pools = []; # Empty means all pools
+    services.zfs = lib.mkIf (cfg.filesystem.scrub
+      && builtins.elem "zfs" (config.boot.supportedFilesystems or [ ])) {
+        autoScrub = {
+          enable = true;
+          interval = "monthly";
+          pools = [ ]; # Empty means all pools
+        };
+        autoSnapshot = {
+          enable = true;
+          frequent = 4; # Keep 4 15-minute snapshots
+          hourly = 24; # Keep 24 hourly snapshots
+          daily = 7; # Keep 7 daily snapshots
+          weekly = 4; # Keep 4 weekly snapshots
+          monthly = 12; # Keep 12 monthly snapshots
+        };
+        trim = {
+          enable = true;
+          interval = "weekly";
+        };
       };
-      autoSnapshot = {
-        enable = true;
-        frequent = 4; # Keep 4 15-minute snapshots
-        hourly = 24; # Keep 24 hourly snapshots
-        daily = 7; # Keep 7 daily snapshots
-        weekly = 4; # Keep 4 weekly snapshots
-        monthly = 12; # Keep 12 monthly snapshots
-      };
-      trim = {
-        enable = true;
-        interval = "weekly";
-      };
-    };
 
     # ZFS additional maintenance
-    systemd.services."zfs-maintenance" = lib.mkIf (cfg.filesystem.scrub && builtins.elem "zfs" (config.boot.supportedFilesystems or [])) {
-      description = "ZFS maintenance tasks";
-      after = ["zfs.target"];
-      serviceConfig = {
-        Type = "oneshot";
-        ExecStart = pkgs.writeShellScript "zfs-maintenance" ''
-          set -euo pipefail
+    systemd.services."zfs-maintenance" = lib.mkIf (cfg.filesystem.scrub
+      && builtins.elem "zfs" (config.boot.supportedFilesystems or [ ])) {
+        description = "ZFS maintenance tasks";
+        after = [ "zfs.target" ];
+        serviceConfig = {
+          Type = "oneshot";
+          ExecStart = pkgs.writeShellScript "zfs-maintenance" ''
+            set -euo pipefail
 
-          # Function to log with timestamp
-          log() {
-            echo "$(date '+%Y-%m-%d %H:%M:%S') [zfs-maintenance] $*"
-          }
+            # Function to log with timestamp
+            log() {
+              echo "$(date '+%Y-%m-%d %H:%M:%S') [zfs-maintenance] $*"
+            }
 
-          log "Starting ZFS maintenance..."
+            log "Starting ZFS maintenance..."
 
-          # Check if ZFS is available
-          if ! command -v zpool >/dev/null 2>&1; then
-            log "ZFS not available, skipping maintenance"
-            exit 0
-          fi
-
-          # Get all ZFS pools
-          POOLS=$(${pkgs.zfs}/bin/zpool list -H -o name 2>/dev/null || true)
-
-          if [ -z "$POOLS" ]; then
-            log "No ZFS pools found"
-            exit 0
-          fi
-
-          # Monitor pool health
-          log "Checking ZFS pool health..."
-          for pool in $POOLS; do
-            status=$(${pkgs.zfs}/bin/zpool status -x "$pool" 2>/dev/null || echo "ERROR")
-            if [ "$status" != "all pools are healthy" ] && [ "$status" != "ERROR" ]; then
-              log "Warning: Pool $pool status: $status"
-            else
-              log "Pool $pool is healthy"
+            # Check if ZFS is available
+            if ! command -v zpool >/dev/null 2>&1; then
+              log "ZFS not available, skipping maintenance"
+              exit 0
             fi
-          done
 
-          # Clean up old snapshots beyond retention policy (keep manual ones)
-          log "Cleaning old automatic snapshots..."
-          ${pkgs.zfs}/bin/zfs list -H -o name -t snapshot | ${pkgs.gnugrep}/bin/grep '@zfs-auto-snap' | while read snap; do
-            # Get snapshot creation time
-            creation=$(${pkgs.zfs}/bin/zfs get -H -o value creation "$snap" 2>/dev/null || continue)
+            # Get all ZFS pools
+            POOLS=$(${pkgs.zfs}/bin/zpool list -H -o name 2>/dev/null || true)
 
-            # Convert to timestamp and check if older than 1 year
-            if command -v date >/dev/null 2>&1; then
-              created_ts=$(date -d "$creation" +%s 2>/dev/null || continue)
-              current_ts=$(date +%s)
-              age_days=$(( (current_ts - created_ts) / 86400 ))
+            if [ -z "$POOLS" ]; then
+              log "No ZFS pools found"
+              exit 0
+            fi
 
-              if [ "$age_days" -gt 365 ]; then
-                log "Removing old snapshot: $snap (age: $age_days days)"
-                ${pkgs.zfs}/bin/zfs destroy "$snap" 2>/dev/null || log "Warning: Failed to destroy $snap"
+            # Monitor pool health
+            log "Checking ZFS pool health..."
+            for pool in $POOLS; do
+              status=$(${pkgs.zfs}/bin/zpool status -x "$pool" 2>/dev/null || echo "ERROR")
+              if [ "$status" != "all pools are healthy" ] && [ "$status" != "ERROR" ]; then
+                log "Warning: Pool $pool status: $status"
+              else
+                log "Pool $pool is healthy"
               fi
-            fi
-          done
+            done
 
-          # Export pool statistics for monitoring
-          for pool in $POOLS; do
-            log "Pool $pool statistics:"
-            ${pkgs.zfs}/bin/zpool iostat -v "$pool" | head -20
-          done
+            # Clean up old snapshots beyond retention policy (keep manual ones)
+            log "Cleaning old automatic snapshots..."
+            ${pkgs.zfs}/bin/zfs list -H -o name -t snapshot | ${pkgs.gnugrep}/bin/grep '@zfs-auto-snap' | while read snap; do
+              # Get snapshot creation time
+              creation=$(${pkgs.zfs}/bin/zfs get -H -o value creation "$snap" 2>/dev/null || continue)
 
-          # Check and optimize dedup tables if enabled
-          for pool in $POOLS; do
-            dedup_ratio=$(${pkgs.zfs}/bin/zpool list -H -o dedupratio "$pool" 2>/dev/null || echo "1.00x")
-            if [ "$dedup_ratio" != "1.00x" ]; then
-              log "Pool $pool has deduplication enabled (ratio: $dedup_ratio)"
-              # You might want to add dedup table optimization here
-            fi
-          done
+              # Convert to timestamp and check if older than 1 year
+              if command -v date >/dev/null 2>&1; then
+                created_ts=$(date -d "$creation" +%s 2>/dev/null || continue)
+                current_ts=$(date +%s)
+                age_days=$(( (current_ts - created_ts) / 86400 ))
 
-          log "ZFS maintenance completed"
-        '';
+                if [ "$age_days" -gt 365 ]; then
+                  log "Removing old snapshot: $snap (age: $age_days days)"
+                  ${pkgs.zfs}/bin/zfs destroy "$snap" 2>/dev/null || log "Warning: Failed to destroy $snap"
+                fi
+              fi
+            done
+
+            # Export pool statistics for monitoring
+            for pool in $POOLS; do
+              log "Pool $pool statistics:"
+              ${pkgs.zfs}/bin/zpool iostat -v "$pool" | head -20
+            done
+
+            # Check and optimize dedup tables if enabled
+            for pool in $POOLS; do
+              dedup_ratio=$(${pkgs.zfs}/bin/zpool list -H -o dedupratio "$pool" 2>/dev/null || echo "1.00x")
+              if [ "$dedup_ratio" != "1.00x" ]; then
+                log "Pool $pool has deduplication enabled (ratio: $dedup_ratio)"
+                # You might want to add dedup table optimization here
+              fi
+            done
+
+            log "ZFS maintenance completed"
+          '';
+        };
       };
-    };
 
-    systemd.timers."zfs-maintenance" = lib.mkIf (cfg.filesystem.scrub && builtins.elem "zfs" (config.boot.supportedFilesystems or [])) {
-      description = "ZFS maintenance timer";
-      wantedBy = ["timers.target"];
-      timerConfig = {
-        OnCalendar = "weekly";
-        Persistent = true;
-        RandomizedDelaySec = "2h";
+    systemd.timers."zfs-maintenance" = lib.mkIf (cfg.filesystem.scrub
+      && builtins.elem "zfs" (config.boot.supportedFilesystems or [ ])) {
+        description = "ZFS maintenance timer";
+        wantedBy = [ "timers.target" ];
+        timerConfig = {
+          OnCalendar = "weekly";
+          Persistent = true;
+          RandomizedDelaySec = "2h";
+        };
       };
-    };
 
     # System log cleanup
     systemd.services."log-cleanup" = lib.mkIf cfg.logs.cleanup {
@@ -325,7 +325,7 @@ in {
 
     systemd.timers."log-cleanup" = lib.mkIf cfg.logs.cleanup {
       description = "Log cleanup timer";
-      wantedBy = ["timers.target"];
+      wantedBy = [ "timers.target" ];
       timerConfig = {
         OnCalendar = "weekly";
         Persistent = true;
@@ -385,7 +385,7 @@ in {
 
     systemd.timers."system-database-update" = lib.mkIf cfg.updates.database {
       description = "System database update timer";
-      wantedBy = ["timers.target"];
+      wantedBy = [ "timers.target" ];
       timerConfig = {
         OnCalendar = "weekly";
         Persistent = true;
@@ -454,7 +454,7 @@ in {
 
     systemd.timers."performance-monitor" = {
       description = "Performance monitoring timer";
-      wantedBy = ["timers.target"];
+      wantedBy = [ "timers.target" ];
       timerConfig = {
         OnCalendar = "daily";
         Persistent = true;

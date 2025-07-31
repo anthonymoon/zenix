@@ -1,23 +1,13 @@
-{
-  config,
-  lib,
-  pkgs,
-  ...
-}: {
+{ config, lib, pkgs, ... }: {
   # Local binary cache configuration
   nix.settings = {
     # Add local cache to substituters
-    substituters =
-      [
-        "http://localhost:5000" # Local nix-serve cache
-      ]
-      ++ config.nix.settings.substituters;
+    substituters = [
+      "http://localhost:5000" # Local nix-serve cache
+    ] ++ config.nix.settings.substituters;
 
     # Trust the local cache
-    trusted-substituters =
-      [
-        "http://localhost:5000"
-      ]
+    trusted-substituters = [ "http://localhost:5000" ]
       ++ config.nix.settings.trusted-substituters;
 
     # Build settings for better caching
@@ -33,7 +23,7 @@
     cores = lib.mkDefault 0; # Use all available cores
 
     # Enable content-addressed derivations for better deduplication
-    experimental-features = ["nix-command" "flakes" "ca-derivations"];
+    experimental-features = [ "nix-command" "flakes" "ca-derivations" ];
   };
 
   # Configure nix-serve for local binary cache
@@ -74,12 +64,10 @@
   '';
 
   # Systemd service to ensure cache directory exists
-  systemd.tmpfiles.rules = [
-    "d /var/cache/nix 0755 root root -"
-    "d /var/keys 0755 root root -"
-  ];
+  systemd.tmpfiles.rules =
+    [ "d /var/cache/nix 0755 root root -" "d /var/keys 0755 root root -" ];
 
   # Optional: Distributed builds configuration
   nix.distributedBuilds = lib.mkDefault false;
-  nix.buildMachines = lib.mkDefault [];
+  nix.buildMachines = lib.mkDefault [ ];
 }

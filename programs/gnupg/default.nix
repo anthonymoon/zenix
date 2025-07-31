@@ -1,9 +1,4 @@
-{
-  config,
-  lib,
-  pkgs,
-  ...
-}: {
+{ config, lib, pkgs, ... }: {
   programs.gnupg = {
     agent = {
       enable = true;
@@ -13,8 +8,5 @@
   };
 
   # Additional GnuPG packages
-  environment.systemPackages = with pkgs; [
-    gnupg
-    pinentry-curses
-  ];
+  environment.systemPackages = with pkgs; [ gnupg pinentry-curses ];
 }

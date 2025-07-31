@@ -1,9 +1,4 @@
-{
-  config,
-  lib,
-  pkgs,
-  ...
-}: {
+{ config, lib, pkgs, ... }: {
   nixpkgs.config = {
     allowUnfree = true;
 
@@ -13,8 +8,9 @@
     ];
 
     # Package overrides
-    packageOverrides = pkgs: {
-      # Add any package overrides here
-    };
+    packageOverrides = pkgs:
+      {
+        # Add any package overrides here
+      };
   };
 }

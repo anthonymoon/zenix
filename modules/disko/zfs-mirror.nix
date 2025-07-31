@@ -1,11 +1,6 @@
 # ZFS mirror configuration
-{
-  lib,
-  config,
-  pkgs,
-  ...
-}: let
-  hostname = config.networking.hostName or "nixos";
+{ lib, config, pkgs, ... }:
+let hostname = config.networking.hostName or "nixos";
 in {
   disko.devices = {
     disk = {
@@ -24,7 +19,7 @@ in {
                 type = "filesystem";
                 format = "vfat";
                 mountpoint = "/boot";
-                mountOptions = ["defaults" "umask=0077"];
+                mountOptions = [ "defaults" "umask=0077" ];
               };
             };
             zfs = {
@@ -144,14 +139,14 @@ in {
   };
 
   # ZFS-specific configuration
-  boot.supportedFilesystems = ["zfs"];
+  boot.supportedFilesystems = [ "zfs" ];
   boot.zfs.devNodes = "/dev/disk/by-partlabel";
   networking.hostId = lib.mkDefault "$(head -c 8 /etc/machine-id)";
 
   # Systemd service to sync ESP partitions
   systemd.services.esp-mirror-sync = {
     description = "Sync ESP to mirror disk";
-    after = ["multi-user.target"];
+    after = [ "multi-user.target" ];
     serviceConfig = {
       Type = "oneshot";
       ExecStart = "${pkgs.rsync}/bin/rsync -a --delete /boot/ /mnt/esp-mirror/";
@@ -164,7 +159,7 @@ in {
   };
   systemd.timers.esp-mirror-sync = {
     description = "Sync ESP to mirror disk daily";
-    wantedBy = ["timers.target"];
+    wantedBy = [ "timers.target" ];
     timerConfig = {
       OnCalendar = "daily";
       Persistent = true;

@@ -1,9 +1,4 @@
-{
-  config,
-  lib,
-  pkgs,
-  ...
-}: {
+{ config, lib, pkgs, ... }: {
   services.samba = {
     enable = true;
     nmbd.enable = true;
@@ -24,7 +19,8 @@
         "min receivefile size" = "16384";
         "aio read size" = "16384";
         "aio write size" = "16384";
-        "socket options" = "IPTOS_LOWDELAY TCP_NODELAY IPTOS_THROUGHPUT SO_RCVBUF=131072 SO_SNDBUF=131072";
+        "socket options" =
+          "IPTOS_LOWDELAY TCP_NODELAY IPTOS_THROUGHPUT SO_RCVBUF=131072 SO_SNDBUF=131072";
         "read raw" = "yes";
         "write raw" = "yes";
         "getwd cache" = "yes";
@@ -63,7 +59,8 @@
         "force user" = "amoon";
         "force group" = "media";
         "guest ok" = "yes";
-        "veto files" = "/.apdisk/.DS_Store/.TemporaryItems/.Trashes/desktop.ini/ehthumbs.db/Network Trash Folder/Temporary Items/Thumbs.db/";
+        "veto files" =
+          "/.apdisk/.DS_Store/.TemporaryItems/.Trashes/desktop.ini/ehthumbs.db/Network Trash Folder/Temporary Items/Thumbs.db/";
         "delete veto files" = "yes";
       };
 

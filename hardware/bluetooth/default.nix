@@ -1,9 +1,4 @@
-{
-  config,
-  lib,
-  pkgs,
-  ...
-}: {
+{ config, lib, pkgs, ... }: {
   hardware.bluetooth = {
     enable = true;
     powerOnBoot = true;
@@ -14,9 +9,7 @@
         FastConnectable = true;
         MultiProfile = "multiple";
       };
-      Policy = {
-        AutoEnable = true;
-      };
+      Policy = { AutoEnable = true; };
     };
   };
 }

@@ -1,9 +1,4 @@
-{
-  config,
-  lib,
-  pkgs,
-  ...
-}: {
+{ config, lib, pkgs, ... }: {
   programs.zsh = {
     enable = true;
     enableCompletion = true;
@@ -25,11 +20,7 @@
     histSize = 100000;
     histFile = "$HOME/.zsh_history";
 
-    setOptions = [
-      "HIST_IGNORE_DUPS"
-      "SHARE_HISTORY"
-      "HIST_FCNTL_LOCK"
-    ];
+    setOptions = [ "HIST_IGNORE_DUPS" "SHARE_HISTORY" "HIST_FCNTL_LOCK" ];
   };
 
   environment.systemPackages = with pkgs; [

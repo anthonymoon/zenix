@@ -1,0 +1,12 @@
+# Nix build outputs
+result
+result-*
+
+# Direnv
+.direnv/
+
+# macOS
+.DS_Store
+
+# Pre-commit (managed by Nix)
+.pre-commit-config.yaml

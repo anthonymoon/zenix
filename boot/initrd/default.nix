@@ -1,9 +1,4 @@
-{
-  config,
-  lib,
-  pkgs,
-  ...
-}: {
+{ config, lib, pkgs, ... }: {
   boot.initrd = {
     availableKernelModules = [
       "xhci_pci"
@@ -16,15 +11,9 @@
       "vfio-pci"
     ];
 
-    kernelModules = ["dm-snapshot"];
+    kernelModules = [ "dm-snapshot" ];
   };
 
-  boot.kernelModules = [
-    "kvm-intel"
-    "vfio"
-    "vfio_iommu_type1"
-    "vfio_pci"
-    "vfio_virqfd"
-    "i40e"
-  ];
+  boot.kernelModules =
+    [ "kvm-intel" "vfio" "vfio_iommu_type1" "vfio_pci" "vfio_virqfd" "i40e" ];
 }

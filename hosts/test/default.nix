@@ -1,9 +1,4 @@
-{
-  config,
-  lib,
-  pkgs,
-  ...
-}: {
+{ config, lib, pkgs, ... }: {
   # Test host configuration - completely minimal for testing
 
   # Override problematic options
@@ -14,22 +9,22 @@
     "/" = {
       device = "/dev/disk/by-label/nixos";
       fsType = "btrfs";
-      options = ["subvol=@" "compress=zstd" "noatime"];
+      options = [ "subvol=@" "compress=zstd" "noatime" ];
     };
     "/home" = {
       device = "/dev/disk/by-label/nixos";
       fsType = "btrfs";
-      options = ["subvol=@home" "compress=zstd" "noatime"];
+      options = [ "subvol=@home" "compress=zstd" "noatime" ];
     };
     "/nix" = {
       device = "/dev/disk/by-label/nixos";
       fsType = "btrfs";
-      options = ["subvol=@nix" "compress=zstd" "noatime"];
+      options = [ "subvol=@nix" "compress=zstd" "noatime" ];
     };
     "/boot" = {
       device = "/dev/disk/by-label/ESP";
       fsType = "vfat";
-      options = ["umask=0077"];
+      options = [ "umask=0077" ];
     };
   };
 
@@ -41,12 +36,10 @@
   };
 
   # Swap file
-  swapDevices = lib.mkForce [
-    {
-      device = "/.swap/swapfile";
-      size = 1024; # 1GB for testing
-    }
-  ];
+  swapDevices = lib.mkForce [{
+    device = "/.swap/swapfile";
+    size = 1024; # 1GB for testing
+  }];
 
   # Enable fish shell since amoon user uses it
   programs.fish.enable = true;

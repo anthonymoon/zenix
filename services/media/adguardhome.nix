@@ -1,20 +1,13 @@
-{
-  config,
-  lib,
-  pkgs,
-  ...
-}: {
+{ config, lib, pkgs, ... }: {
   services.adguardhome = {
     enable = true;
     mutableSettings = true;
     settings = {
       schema_version = 14;
-      users = [];
-      http = {
-        address = "0.0.0.0:3000";
-      };
+      users = [ ];
+      http = { address = "0.0.0.0:3000"; };
       dns = {
-        bind_hosts = ["0.0.0.0"];
+        bind_hosts = [ "0.0.0.0" ];
         port = 53;
         protection_enabled = true;
         filtering_enabled = true;
@@ -27,24 +20,14 @@
           "tls://1.1.1.1"
           "tls://8.8.8.8"
         ];
-        bootstrap_dns = [
-          "1.1.1.1"
-          "8.8.8.8"
-        ];
-        fallback_dns = [
-          "1.1.1.1"
-          "8.8.8.8"
-        ];
+        bootstrap_dns = [ "1.1.1.1" "8.8.8.8" ];
+        fallback_dns = [ "1.1.1.1" "8.8.8.8" ];
         cache_size = 4194304;
         cache_ttl_min = 60;
         cache_ttl_max = 86400;
       };
-      filtering = {
-        rewrites = [];
-      };
-      dhcp = {
-        enabled = false;
-      };
+      filtering = { rewrites = [ ]; };
+      dhcp = { enabled = false; };
       log = {
         enabled = true;
         file = "";

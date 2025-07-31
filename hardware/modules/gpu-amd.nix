@@ -1,25 +1,14 @@
-{
-  config,
-  lib,
-  pkgs,
-  ...
-}: {
+{ config, lib, pkgs, ... }: {
   # AMD GPU configuration (auto-detected)
   boot = {
-    initrd.kernelModules = ["amdgpu"];
-    kernelParams = lib.mkDefault [
-      "amdgpu.ppfeaturemask=0xffffffff"
-    ];
+    initrd.kernelModules = [ "amdgpu" ];
+    kernelParams = lib.mkDefault [ "amdgpu.ppfeaturemask=0xffffffff" ];
   };
 
   hardware.graphics = {
     enable = true;
     enable32Bit = lib.mkDefault true;
-    extraPackages = with pkgs; [
-      amdvlk
-    ];
-    extraPackages32 = with pkgs; [
-      driversi686Linux.amdvlk
-    ];
+    extraPackages = with pkgs; [ amdvlk ];
+    extraPackages32 = with pkgs; [ driversi686Linux.amdvlk ];
   };
 }

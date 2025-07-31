@@ -1,9 +1,4 @@
-{
-  config,
-  lib,
-  pkgs,
-  ...
-}: {
+{ config, lib, pkgs, ... }: {
   boot.kernel.sysctl = {
     # Network Performance Tuning
     "net.core.netdev_max_backlog" = 16384;

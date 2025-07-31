@@ -1,9 +1,4 @@
-{
-  config,
-  lib,
-  pkgs,
-  ...
-}: {
+{ config, lib, pkgs, ... }: {
   # Physical hardware platform (auto-detected)
   hardware = {
     enableRedistributableFirmware = lib.mkDefault true;
@@ -26,6 +21,5 @@
   };
 
   services.thermald.enable =
-    lib.mkDefault
-    (config.hardware.cpu.intel.updateMicrocode or false);
+    lib.mkDefault (config.hardware.cpu.intel.updateMicrocode or false);
 }

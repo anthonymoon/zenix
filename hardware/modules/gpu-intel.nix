@@ -1,11 +1,6 @@
-{
-  config,
-  lib,
-  pkgs,
-  ...
-}: {
+{ config, lib, pkgs, ... }: {
   # Intel GPU configuration (auto-detected)
-  boot.initrd.kernelModules = ["i915"];
+  boot.initrd.kernelModules = [ "i915" ];
 
   hardware.opengl = {
     enable = true;
@@ -21,7 +16,5 @@
   };
 
   # Enable Intel GPU tools
-  environment.systemPackages = with pkgs; [
-    intel-gpu-tools
-  ];
+  environment.systemPackages = with pkgs; [ intel-gpu-tools ];
 }

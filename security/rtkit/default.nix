@@ -1,8 +1,1 @@
-{
-  config,
-  lib,
-  pkgs,
-  ...
-}: {
-  security.rtkit.enable = true;
-}
+{ config, lib, pkgs, ... }: { security.rtkit.enable = true; }

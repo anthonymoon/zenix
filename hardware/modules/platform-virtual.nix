@@ -1,19 +1,10 @@
-{
-  config,
-  lib,
-  pkgs,
-  ...
-}: {
+{ config, lib, pkgs, ... }: {
   # Virtual platform configuration (auto-detected)
   boot = {
-    initrd.availableKernelModules = [
-      "virtio_pci"
-      "virtio_scsi"
-      "virtio_net"
-      "virtio_blk"
-    ];
-    kernelModules = ["virtio_balloon"];
-    kernelParams = ["console=ttyS0"];
+    initrd.availableKernelModules =
+      [ "virtio_pci" "virtio_scsi" "virtio_net" "virtio_blk" ];
+    kernelModules = [ "virtio_balloon" ];
+    kernelParams = [ "console=ttyS0" ];
   };
 
   # VM services

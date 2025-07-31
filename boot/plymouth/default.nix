@@ -1,9 +1,4 @@
-{
-  config,
-  lib,
-  pkgs,
-  ...
-}: {
+{ config, lib, pkgs, ... }: {
   # Enable Plymouth boot splash
   boot = {
     plymouth = {
@@ -48,9 +43,10 @@
   };
 
   # Additional Plymouth themes
-  environment.systemPackages = with pkgs; [
-    plymouth
-    # Additional themes if desired
-    # plymouth-themes
-  ];
+  environment.systemPackages = with pkgs;
+    [
+      plymouth
+      # Additional themes if desired
+      # plymouth-themes
+    ];
 }

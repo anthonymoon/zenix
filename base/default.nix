@@ -1,9 +1,4 @@
-{
-  config,
-  lib,
-  pkgs,
-  ...
-}: {
+{ config, lib, pkgs, ... }: {
   # Minimal base configuration for all systems
   imports = [
     ./packages.nix # Core packages for all systems
@@ -32,12 +27,7 @@
   };
 
   # Essential system packages (absolute minimum)
-  environment.systemPackages = with pkgs; [
-    vim
-    git
-    htop
-    tmux
-  ];
+  environment.systemPackages = with pkgs; [ vim git htop tmux ];
 
   # Basic networking
   networking = {

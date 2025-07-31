@@ -1,9 +1,5 @@
+{ config, lib, pkgs, ... }:
 {
-  config,
-  lib,
-  pkgs,
-  ...
-}: {
   # PAM configuration would go here
   # Example:
   # security.pam.services.login.makeHomeDir = true;

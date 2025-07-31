@@ -1,13 +1,5 @@
-{
-  config,
-  lib,
-  pkgs,
-  ...
-}: {
-  imports = [
-    ./default.nix
-    ./local-cache.nix
-  ];
+{ config, lib, pkgs, ... }: {
+  imports = [ ./default.nix ./local-cache.nix ];
 
   # Override to merge substituters instead of replacing
   nix.settings.substituters = lib.mkForce [

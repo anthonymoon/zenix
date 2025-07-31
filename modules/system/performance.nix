@@ -1,10 +1,5 @@
 # System-wide performance optimizations for NVMe and modern hardware
-{
-  config,
-  lib,
-  pkgs,
-  ...
-}: {
+{ config, lib, pkgs, ... }: {
   # ZRAM swap configuration (16GB compressed)
   zramSwap = {
     enable = lib.mkDefault true;
@@ -103,8 +98,10 @@
   # CPU frequency scaling
   powerManagement = {
     enable = true;
-    cpuFreqGovernor = lib.mkDefault "performance"; # Use performance governor by default
-    powertop.enable = false; # Disable powertop auto-tuning (can hurt performance)
+    cpuFreqGovernor =
+      lib.mkDefault "performance"; # Use performance governor by default
+    powertop.enable =
+      false; # Disable powertop auto-tuning (can hurt performance)
   };
 
   # Hardware-specific optimizations
@@ -206,7 +203,7 @@
     # Store optimization
     optimise = {
       automatic = lib.mkDefault true;
-      dates = ["weekly"];
+      dates = [ "weekly" ];
     };
   };
 
@@ -263,7 +260,8 @@
       autodetect = true;
       notifications = {
         wall.enable = false; # Disable wall notifications
-        mail.enable = false; # Disable mail notifications (add your email if needed)
+        mail.enable =
+          false; # Disable mail notifications (add your email if needed)
       };
     };
 
@@ -271,7 +269,8 @@
     irqbalance.enable = true; # Balance IRQs across CPUs
 
     # Disable unnecessary services for performance
-    udisks2.enable = lib.mkDefault false; # Auto-mounting (usually not needed on servers)
+    udisks2.enable =
+      lib.mkDefault false; # Auto-mounting (usually not needed on servers)
     accounts-daemon.enable = lib.mkDefault false; # User account service
 
     # Enable automatic TRIM for SSDs
@@ -290,7 +289,7 @@
     initrd = {
       # Compress initrd with fast algorithm
       compressor = "zstd";
-      compressorArgs = ["-19" "-T0"]; # High compression, all threads
+      compressorArgs = [ "-19" "-T0" ]; # High compression, all threads
 
       # Optimize module loading
       availableKernelModules = [
@@ -388,7 +387,8 @@
   security = {
     # Optimize AppArmor for performance
     apparmor = {
-      enable = lib.mkDefault false; # Disable for performance (enable if security is critical)
+      enable = lib.mkDefault
+        false; # Disable for performance (enable if security is critical)
     };
 
     # Optimize audit system

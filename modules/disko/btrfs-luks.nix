@@ -1,30 +1,25 @@
 # Btrfs single disk with LUKS encryption and TPM2 auto-unlock
-{
-  config,
-  lib,
-  pkgs,
-  inputs,
-  ...
-}: let
+{ config, lib, pkgs, inputs, ... }:
+let
   # Import disk detection utilities
-  diskLib = import ../../lib/disk-detection.nix {inherit lib pkgs;};
+  diskLib = import ../../lib/disk-detection.nix { inherit lib pkgs; };
 
   # Auto-detect the primary disk with fallback
-  primaryDisk =
-    config.disko.primaryDisk or (diskLib.detectPrimaryDisk {
-      preferNvme = true;
-      preferSSD = true;
-      minSizeGB = 64; # Minimum 64GB for encrypted system
-    });
+  primaryDisk = config.disko.primaryDisk or (diskLib.detectPrimaryDisk {
+    preferNvme = true;
+    preferSSD = true;
+    minSizeGB = 64; # Minimum 64GB for encrypted system
+  });
 in {
   # Import lanzaboote for secure boot when encryption is used
-  imports = [inputs.lanzaboote.nixosModules.lanzaboote];
+  imports = [ inputs.lanzaboote.nixosModules.lanzaboote ];
 
   # Add configuration options
   options.disko = {
     primaryDisk = lib.mkOption {
       type = lib.types.str;
-      description = "Primary disk to use for installation (auto-detected if not specified)";
+      description =
+        "Primary disk to use for installation (auto-detected if not specified)";
     };
 
     enableTPM2 = lib.mkOption {
@@ -218,26 +213,18 @@ in {
     services.btrfs.autoScrub = {
       enable = true;
       interval = "monthly";
-      fileSystems = ["/"];
+      fileSystems = [ "/" ];
     };
 
     # Additional boot configuration for encrypted Btrfs
     boot = {
       # Include necessary modules for encryption and Btrfs
-      initrd.availableKernelModules = [
-        "btrfs"
-        "dm_crypt"
-        "dm_mod"
-        "aesni_intel"
-        "cryptd"
-      ];
+      initrd.availableKernelModules =
+        [ "btrfs" "dm_crypt" "dm_mod" "aesni_intel" "cryptd" ];
 
       # Add TPM modules
-      initrd.kernelModules = lib.optionals config.disko.enableTPM2 [
-        "tpm"
-        "tpm_tis"
-        "tpm_crb"
-      ];
+      initrd.kernelModules =
+        lib.optionals config.disko.enableTPM2 [ "tpm" "tpm_tis" "tpm_crb" ];
 
       # Optimized kernel parameters for encrypted Btrfs
       kernelParams = [
@@ -267,8 +254,8 @@ in {
     # Systemd service for TPM2 enrollment (run after installation)
     systemd.services.enroll-tpm2-luks = lib.mkIf config.disko.enableTPM2 {
       description = "Enroll TPM2 for LUKS auto-unlock";
-      wantedBy = ["multi-user.target"];
-      after = ["tpm2-abrmd.service"];
+      wantedBy = [ "multi-user.target" ];
+      after = [ "tpm2-abrmd.service" ];
       serviceConfig = {
         Type = "oneshot";
         RemainAfterExit = true;
