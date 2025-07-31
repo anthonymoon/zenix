@@ -97,6 +97,9 @@
               # Essential services
               ./services/networking/ssh.nix
               ./services/system/systemd.nix
+              
+              # ZFS support (always enabled)
+              ./modules/disko/zfs-single.nix
 
               # Software profiles from the config name
             ] ++ (map (profile: ./profiles + "/${profile}") profiles);
@@ -117,14 +120,14 @@
       # Dynamic configuration builder (separate from nixosConfigurations to avoid flake check issues)
       lib.buildSystem = mkSystem;
 
-      # Disko configurations for installation
+      # Disko configurations for installation - ZFS single disk only
       diskoConfigurations = {
         default = {
           disko.devices = {
             disk = {
               main = {
                 type = "disk";
-                device = "/dev/sda";
+                device = "/dev/sda";  # Will be overridden by --arg device
                 content = {
                   type = "gpt";
                   partitions = {
@@ -141,30 +144,161 @@
                         mountOptions = [ "umask=0077" ];
                       };
                     };
-                    root = {
+                    zfs = {
+                      priority = 2;
+                      name = "zfs";
                       size = "100%";
                       content = {
-                        type = "btrfs";
-                        extraArgs = [ "-f" "-L" "nixos" ];
-                        subvolumes = {
-                          "@" = {
-                            mountpoint = "/";
-                            mountOptions = [ "compress=zstd" "noatime" ];
-                          };
-                          "@home" = {
-                            mountpoint = "/home";
-                            mountOptions = [ "compress=zstd" "noatime" ];
-                          };
-                          "@nix" = {
-                            mountpoint = "/nix";
-                            mountOptions = [ "compress=zstd" "noatime" ];
-                          };
-                          "@swap" = {
-                            mountpoint = "/.swap";
-                            swap.swapfile.size = "16G";
-                          };
-                        };
+                        type = "zfs";
+                        pool = "zroot";
                       };
+                    };
+                  };
+                };
+              };
+            };
+            zpool = {
+              zroot = {
+                type = "zpool";
+                mode = "";  # Single disk, no RAID
+                options = {
+                  ashift = "12";  # 4K sectors
+                  autotrim = "on";
+                  compression = "zstd";
+                  atime = "off";
+                  xattr = "sa";
+                  acltype = "posixacl";
+                  mountpoint = "none";
+                };
+                rootFsOptions = {
+                  compression = "zstd";
+                  "com.sun:auto-snapshot" = "false";
+                };
+                
+                datasets = {
+                  root = {
+                    type = "zfs_fs";
+                    mountpoint = "/";
+                    options = {
+                      mountpoint = "legacy";
+                    };
+                    postCreateHook = ''
+                      zfs snapshot zroot/root@blank
+                    '';
+                  };
+                  nix = {
+                    type = "zfs_fs";
+                    mountpoint = "/nix";
+                    options = {
+                      mountpoint = "legacy";
+                      atime = "off";
+                    };
+                  };
+                  home = {
+                    type = "zfs_fs";
+                    mountpoint = "/home";
+                    options = {
+                      mountpoint = "legacy";
+                    };
+                  };
+                  reserved = {
+                    type = "zfs_fs";
+                    options = {
+                      mountpoint = "none";
+                      reservation = "1G";
+                    };
+                  };
+                };
+              };
+            };
+          };
+        };
+        
+        # Alias for clarity
+        zfs-single = {
+          disko.devices = {
+            disk = {
+              main = {
+                type = "disk";
+                device = "/dev/sda";  # Will be overridden by --arg device
+                content = {
+                  type = "gpt";
+                  partitions = {
+                    ESP = {
+                      priority = 1;
+                      name = "ESP";
+                      start = "1M";
+                      end = "1G";
+                      type = "EF00";
+                      content = {
+                        type = "filesystem";
+                        format = "vfat";
+                        mountpoint = "/boot";
+                        mountOptions = [ "umask=0077" ];
+                      };
+                    };
+                    zfs = {
+                      priority = 2;
+                      name = "zfs";
+                      size = "100%";
+                      content = {
+                        type = "zfs";
+                        pool = "zroot";
+                      };
+                    };
+                  };
+                };
+              };
+            };
+            zpool = {
+              zroot = {
+                type = "zpool";
+                mode = "";  # Single disk, no RAID
+                options = {
+                  ashift = "12";  # 4K sectors
+                  autotrim = "on";
+                  compression = "zstd";
+                  atime = "off";
+                  xattr = "sa";
+                  acltype = "posixacl";
+                  mountpoint = "none";
+                };
+                rootFsOptions = {
+                  compression = "zstd";
+                  "com.sun:auto-snapshot" = "false";
+                };
+                
+                datasets = {
+                  root = {
+                    type = "zfs_fs";
+                    mountpoint = "/";
+                    options = {
+                      mountpoint = "legacy";
+                    };
+                    postCreateHook = ''
+                      zfs snapshot zroot/root@blank
+                    '';
+                  };
+                  nix = {
+                    type = "zfs_fs";
+                    mountpoint = "/nix";
+                    options = {
+                      mountpoint = "legacy";
+                      atime = "off";
+                    };
+                  };
+                  home = {
+                    type = "zfs_fs";
+                    mountpoint = "/home";
+                    options = {
+                      mountpoint = "legacy";
+                    };
+                  };
+                  reserved = {
+                    type = "zfs_fs";
+                    options = {
+                      mountpoint = "none";
+                      reservation = "1G";
                     };
                   };
                 };
