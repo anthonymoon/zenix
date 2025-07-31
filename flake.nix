@@ -127,7 +127,7 @@
             disk = {
               main = {
                 type = "disk";
-                device = "/dev/sda";  # Will be overridden by --arg device
+                device = lib.mkDefault "/dev/nvme0n1";  # Default to NVMe, override with --arg device
                 content = {
                   type = "gpt";
                   partitions = {
@@ -220,7 +220,7 @@
             disk = {
               main = {
                 type = "disk";
-                device = "/dev/sda";  # Will be overridden by --arg device
+                device = lib.mkDefault "/dev/nvme0n1";  # Default to NVMe, override with --arg device
                 content = {
                   type = "gpt";
                   partitions = {
