@@ -1,8 +1,7 @@
-{
-  config,
-  lib,
-  pkgs,
-  ...
+{ config
+, lib
+, pkgs
+, ...
 }: {
   # Enable X11 and Plasma 6
   services.xserver.enable = true;

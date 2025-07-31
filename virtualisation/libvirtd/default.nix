@@ -1,8 +1,7 @@
-{
-  config,
-  lib,
-  pkgs,
-  ...
+{ config
+, lib
+, pkgs
+, ...
 }: {
   virtualisation.libvirtd = {
     enable = true;
@@ -14,7 +13,7 @@
       swtpm.enable = true;
       ovmf = {
         enable = true;
-        packages = [pkgs.OVMFFull.fd];
+        packages = [ pkgs.OVMFFull.fd ];
       };
       verbatimConfig = ''
         user = "amoon"

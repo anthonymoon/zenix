@@ -1,10 +1,9 @@
 # Example host configuration showing disko module usage
-{
-  config,
-  lib,
-  pkgs,
-  inputs,
-  ...
+{ config
+, lib
+, pkgs
+, inputs
+, ...
 }: {
   imports = [
     # Import disko and choose your disk configuration
@@ -56,7 +55,7 @@
   # User configuration
   users.users.admin = {
     isNormalUser = true;
-    extraGroups = ["wheel"];
+    extraGroups = [ "wheel" ];
     initialPassword = "changeme"; # Change this after first login!
   };
 

@@ -1,8 +1,7 @@
-{
-  config,
-  lib,
-  pkgs,
-  ...
+{ config
+, lib
+, pkgs
+, ...
 }: {
   virtualisation.docker = {
     enable = true;
@@ -10,7 +9,7 @@
     autoPrune = {
       enable = true;
       dates = "weekly";
-      flags = ["--volumes"];
+      flags = [ "--volumes" ];
     };
     daemon.settings = {
       bip = "172.17.0.1/16";
@@ -31,7 +30,7 @@
         max-file = "3";
       };
       storage-driver = "overlay2";
-      storage-opts = ["overlay2.override_kernel_check=true"];
+      storage-opts = [ "overlay2.override_kernel_check=true" ];
       live-restore = true;
       userland-proxy = false;
       experimental = true;

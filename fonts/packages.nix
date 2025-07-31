@@ -1,8 +1,7 @@
-{
-  config,
-  lib,
-  pkgs,
-  ...
+{ config
+, lib
+, pkgs
+, ...
 }: {
   fonts = {
     enableDefaultPackages = true;
@@ -77,10 +76,10 @@
       enable = true;
 
       defaultFonts = {
-        serif = ["Liberation Serif" "Noto Serif"];
-        sansSerif = ["Liberation Sans" "Noto Sans"];
-        monospace = ["JetBrains Mono" "FiraCode Nerd Font" "Source Code Pro"];
-        emoji = ["Noto Color Emoji"];
+        serif = [ "Liberation Serif" "Noto Serif" ];
+        sansSerif = [ "Liberation Sans" "Noto Sans" ];
+        monospace = [ "JetBrains Mono" "FiraCode Nerd Font" "Source Code Pro" ];
+        emoji = [ "Noto Color Emoji" ];
       };
 
       # Improve font rendering

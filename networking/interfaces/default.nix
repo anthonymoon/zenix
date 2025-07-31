@@ -1,8 +1,7 @@
-{
-  config,
-  lib,
-  pkgs,
-  ...
+{ config
+, lib
+, pkgs
+, ...
 }: {
   networking = {
     hostName = "kronos";
@@ -10,6 +9,6 @@
     networkmanager.enable = false;
     useNetworkd = true;
     useDHCP = false;
-    nameservers = ["1.1.1.1" "8.8.8.8"];
+    nameservers = [ "1.1.1.1" "8.8.8.8" ];
   };
 }

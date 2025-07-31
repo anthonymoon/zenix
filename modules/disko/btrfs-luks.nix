@@ -1,13 +1,13 @@
 # Btrfs single disk with LUKS encryption and TPM2 auto-unlock
-{
-  config,
-  lib,
-  pkgs,
-  inputs,
-  ...
-}: let
+{ config
+, lib
+, pkgs
+, inputs
+, ...
+}:
+let
   # Import disk detection utilities
-  diskLib = import ../../lib/disk-detection.nix {inherit lib pkgs;};
+  diskLib = import ../../lib/disk-detection.nix { inherit lib pkgs; };
 
   # Auto-detect the primary disk with fallback
   primaryDisk =
@@ -16,9 +16,10 @@
       preferSSD = true;
       minSizeGB = 64; # Minimum 64GB for encrypted system
     });
-in {
+in
+{
   # Import lanzaboote for secure boot when encryption is used
-  imports = [inputs.lanzaboote.nixosModules.lanzaboote];
+  imports = [ inputs.lanzaboote.nixosModules.lanzaboote ];
 
   # Add configuration options
   options.disko = {
@@ -218,7 +219,7 @@ in {
     services.btrfs.autoScrub = {
       enable = true;
       interval = "monthly";
-      fileSystems = ["/"];
+      fileSystems = [ "/" ];
     };
 
     # Additional boot configuration for encrypted Btrfs
@@ -267,8 +268,8 @@ in {
     # Systemd service for TPM2 enrollment (run after installation)
     systemd.services.enroll-tpm2-luks = lib.mkIf config.disko.enableTPM2 {
       description = "Enroll TPM2 for LUKS auto-unlock";
-      wantedBy = ["multi-user.target"];
-      after = ["tpm2-abrmd.service"];
+      wantedBy = [ "multi-user.target" ];
+      after = [ "tpm2-abrmd.service" ];
       serviceConfig = {
         Type = "oneshot";
         RemainAfterExit = true;

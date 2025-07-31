@@ -1,21 +1,23 @@
-{
-  config,
-  lib,
-  pkgs,
-  ...
-}: let
+{ config
+, lib
+, pkgs
+, ...
+}:
+let
   # Safe file reading that handles pure evaluation mode
-  safeReadFile = path: default: let
-    result = builtins.tryEval (builtins.readFile path);
-  in
+  safeReadFile = path: default:
+    let
+      result = builtins.tryEval (builtins.readFile path);
+    in
     if result.success
     then result.value
     else default;
 
   # Safe path checking for pure evaluation
-  safePathExists = path: let
-    result = builtins.tryEval (builtins.pathExists path);
-  in
+  safePathExists = path:
+    let
+      result = builtins.tryEval (builtins.pathExists path);
+    in
     if result.success
     then result.value
     else false;
@@ -50,9 +52,10 @@
     if !isVirtual
     then null
     else if safePathExists /sys/devices/virtual/dmi/id/sys_vendor
-    then let
-      vendor = lib.strings.removeSuffix "\n" (safeReadFile /sys/devices/virtual/dmi/id/sys_vendor "unknown");
-    in
+    then
+      let
+        vendor = lib.strings.removeSuffix "\n" (safeReadFile /sys/devices/virtual/dmi/id/sys_vendor "unknown");
+      in
       if vendor == "QEMU" || vendor == "KVM"
       then "qemu-kvm"
       else if vendor == "VMware, Inc."
@@ -65,7 +68,8 @@
       then "xen"
       else "generic-vm"
     else "generic-vm";
-in {
+in
+{
   imports =
     [
       # Always import the detection results module

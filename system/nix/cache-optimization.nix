@@ -1,8 +1,7 @@
-{
-  config,
-  lib,
-  pkgs,
-  ...
+{ config
+, lib
+, pkgs
+, ...
 }: {
   # Advanced build cache and optimization settings
   nix = {
@@ -90,7 +89,7 @@
 
   systemd.timers.nix-cache-optimize = {
     description = "Optimize Nix store and cache timer";
-    wantedBy = ["timers.target"];
+    wantedBy = [ "timers.target" ];
     timerConfig = {
       OnCalendar = "daily";
       Persistent = true;
@@ -100,8 +99,8 @@
   # Cache warmup service
   systemd.services.nix-cache-warmup = {
     description = "Warm up Nix binary cache";
-    after = ["nix-serve.service" "network-online.target"];
-    wantedBy = ["multi-user.target"];
+    after = [ "nix-serve.service" "network-online.target" ];
+    wantedBy = [ "multi-user.target" ];
     serviceConfig = {
       Type = "oneshot";
       RemainAfterExit = true;

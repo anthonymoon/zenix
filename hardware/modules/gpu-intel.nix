@@ -1,13 +1,12 @@
-{
-  config,
-  lib,
-  pkgs,
-  ...
+{ config
+, lib
+, pkgs
+, ...
 }: {
   # Intel GPU configuration (auto-detected)
-  boot.initrd.kernelModules = ["i915"];
+  boot.initrd.kernelModules = [ "i915" ];
 
-  services.xserver.videoDrivers = lib.mkBefore ["modesetting"];
+  services.xserver.videoDrivers = lib.mkBefore [ "modesetting" ];
 
   hardware.opengl = {
     enable = true;

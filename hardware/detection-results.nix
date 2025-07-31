@@ -1,16 +1,15 @@
-{
-  cpuVendor,
-  hasNvidia,
-  hasAmdGpu,
-  hasIntelGpu,
-  isVirtual,
-  vmType,
-}: {
-  config,
-  lib,
-  pkgs,
-  ...
-}: {
+{ cpuVendor
+, hasNvidia
+, hasAmdGpu
+, hasIntelGpu
+, isVirtual
+, vmType
+,
+}: { config
+   , lib
+   , pkgs
+   , ...
+   }: {
   # Make detection results available to the system
   system.build.detectedHardware = {
     cpu = cpuVendor;

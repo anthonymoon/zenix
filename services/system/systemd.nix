@@ -1,12 +1,11 @@
-{
-  config,
-  lib,
-  pkgs,
-  ...
+{ config
+, lib
+, pkgs
+, ...
 }: {
   # Systemd timers
   systemd.timers."xidlehook-caffeine" = {
-    wantedBy = ["timers.target"];
+    wantedBy = [ "timers.target" ];
     timerConfig = {
       OnCalendar = "*-*-* *:*:00";
       Unit = "xidlehook-caffeine.service";

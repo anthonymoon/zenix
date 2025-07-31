@@ -1,8 +1,7 @@
-{
-  config,
-  lib,
-  pkgs,
-  ...
+{ config
+, lib
+, pkgs
+, ...
 }: {
   boot = {
     kernelPackages = pkgs.linuxPackages_latest;
@@ -33,7 +32,7 @@
       "nouveau.modeset=0"
     ];
 
-    blacklistedKernelModules = ["r8169"];
+    blacklistedKernelModules = [ "r8169" ];
 
     extraModulePackages = with config.boot.kernelPackages; [
       turbostat

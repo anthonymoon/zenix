@@ -1,8 +1,7 @@
-{
-  config,
-  lib,
-  pkgs,
-  ...
+{ config
+, lib
+, pkgs
+, ...
 }: {
   # Boot loader configuration
   boot.loader = {
@@ -15,19 +14,19 @@
   fileSystems."/" = {
     device = "/dev/disk/by-label/nixos";
     fsType = "btrfs";
-    options = ["subvol=@" "compress=zstd" "noatime"];
+    options = [ "subvol=@" "compress=zstd" "noatime" ];
   };
 
   fileSystems."/home" = {
     device = "/dev/disk/by-label/nixos";
     fsType = "btrfs";
-    options = ["subvol=@home" "compress=zstd" "noatime"];
+    options = [ "subvol=@home" "compress=zstd" "noatime" ];
   };
 
   fileSystems."/nix" = {
     device = "/dev/disk/by-label/nixos";
     fsType = "btrfs";
-    options = ["subvol=@nix" "compress=zstd" "noatime"];
+    options = [ "subvol=@nix" "compress=zstd" "noatime" ];
   };
 
   fileSystems."/boot" = {

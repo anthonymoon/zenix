@@ -1,12 +1,12 @@
 # ZFS single disk configuration with NVMe optimizations
-{
-  config,
-  lib,
-  pkgs,
-  ...
-}: let
+{ config
+, lib
+, pkgs
+, ...
+}:
+let
   # Import disk detection utilities
-  diskLib = import ../../lib/disk-detection.nix {inherit lib pkgs;};
+  diskLib = import ../../lib/disk-detection.nix { inherit lib pkgs; };
 
   # Auto-detect the primary disk with fallback
   primaryDisk =
@@ -18,14 +18,16 @@
 
   # Generate a stable, unique hostId from hostname
   # This ensures ZFS pools can be imported correctly
-  generateHostId = hostname: let
-    # Hash the hostname to get a stable ID
-    hash = builtins.hashString "sha256" hostname;
-    # Take first 8 characters of the hash
-    hostId = builtins.substring 0 8 hash;
-  in
+  generateHostId = hostname:
+    let
+      # Hash the hostname to get a stable ID
+      hash = builtins.hashString "sha256" hostname;
+      # Take first 8 characters of the hash
+      hostId = builtins.substring 0 8 hash;
+    in
     hostId;
-in {
+in
+{
   # Add configuration options
   options.disko = {
     primaryDisk = lib.mkOption {
@@ -51,7 +53,7 @@ in {
     };
 
     # Enable ZFS support
-    boot.supportedFilesystems = ["zfs"];
+    boot.supportedFilesystems = [ "zfs" ];
     boot.zfs.forceImportRoot = false;
 
     # Enable ZFS services with optimizations

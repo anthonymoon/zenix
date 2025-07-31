@@ -1,8 +1,7 @@
-{
-  config,
-  lib,
-  pkgs,
-  ...
+{ config
+, lib
+, pkgs
+, ...
 }: {
   services.xserver = {
     enable = true;
@@ -27,5 +26,5 @@
   ];
 
   # Enable GNOME features
-  services.udev.packages = with pkgs; [gnome.gnome-settings-daemon];
+  services.udev.packages = with pkgs; [ gnome.gnome-settings-daemon ];
 }

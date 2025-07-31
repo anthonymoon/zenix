@@ -1,9 +1,8 @@
 # Boot and initrd configuration optimized for modern hardware
-{
-  config,
-  lib,
-  pkgs,
-  ...
+{ config
+, lib
+, pkgs
+, ...
 }: {
   # Essential boot configuration
   boot = {
@@ -61,7 +60,7 @@
           "hid_roccat"
           "hid_logitech_hidpp"
         ]
-        ++ lib.optionals (builtins.any (fs: fs == "zfs") (config.boot.supportedFilesystems or [])) [
+        ++ lib.optionals (builtins.any (fs: fs == "zfs") (config.boot.supportedFilesystems or [ ])) [
           # ZFS modules
           "zfs"
           "spl"
@@ -120,7 +119,7 @@
           copy_bin_and_libs ${pkgs.gnused}/bin/sed
           copy_bin_and_libs ${pkgs.gawk}/bin/awk
         ''
-        + lib.optionalString (builtins.any (fs: fs == "zfs") (config.boot.supportedFilesystems or [])) ''
+        + lib.optionalString (builtins.any (fs: fs == "zfs") (config.boot.supportedFilesystems or [ ])) ''
           # ZFS tools
           copy_bin_and_libs ${pkgs.zfs}/bin/zfs
           copy_bin_and_libs ${pkgs.zfs}/bin/zpool
@@ -172,8 +171,8 @@
         ssh = {
           enable = lib.mkDefault false;
           port = 22;
-          authorizedKeys = []; # Add your SSH keys here if needed
-          hostKeys = []; # Will generate automatically
+          authorizedKeys = [ ]; # Add your SSH keys here if needed
+          hostKeys = [ ]; # Will generate automatically
         };
       };
 
@@ -186,7 +185,7 @@
         services = lib.mkIf config.boot.initrd.systemd.enable {
           # Emergency shell access
           emergency = {
-            wants = ["systemd-ask-password-console.service"];
+            wants = [ "systemd-ask-password-console.service" ];
           };
         };
       };
@@ -196,7 +195,7 @@
 
       # Initrd compression (zstd is fastest to decompress)
       compressor = "zstd";
-      compressorArgs = ["-1" "-T0"]; # Fast compression, all threads
+      compressorArgs = [ "-1" "-T0" ]; # Fast compression, all threads
     };
 
     # Use latest kernel for best hardware support

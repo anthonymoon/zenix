@@ -1,8 +1,7 @@
-{
-  config,
-  lib,
-  pkgs,
-  ...
+{ config
+, lib
+, pkgs
+, ...
 }: {
   boot.initrd = {
     availableKernelModules = [
@@ -16,7 +15,7 @@
       "vfio-pci"
     ];
 
-    kernelModules = ["dm-snapshot"];
+    kernelModules = [ "dm-snapshot" ];
   };
 
   boot.kernelModules = [

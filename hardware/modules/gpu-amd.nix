@@ -1,18 +1,17 @@
-{
-  config,
-  lib,
-  pkgs,
-  ...
+{ config
+, lib
+, pkgs
+, ...
 }: {
   # AMD GPU configuration (auto-detected)
   boot = {
-    initrd.kernelModules = ["amdgpu"];
+    initrd.kernelModules = [ "amdgpu" ];
     kernelParams = lib.mkDefault [
       "amdgpu.ppfeaturemask=0xffffffff"
     ];
   };
 
-  services.xserver.videoDrivers = lib.mkBefore ["amdgpu"];
+  services.xserver.videoDrivers = lib.mkBefore [ "amdgpu" ];
 
   hardware.graphics = {
     enable = true;

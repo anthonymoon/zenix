@@ -1,8 +1,7 @@
-{
-  config,
-  lib,
-  pkgs,
-  ...
+{ config
+, lib
+, pkgs
+, ...
 }: {
   environment.systemPackages = with pkgs; [
     # Base system tools
@@ -133,7 +132,7 @@
     ohMyZsh = {
       enable = true;
       theme = "robbyrussell";
-      plugins = ["git" "docker" "kubectl"];
+      plugins = [ "git" "docker" "kubectl" ];
     };
   };
 
@@ -148,6 +147,6 @@
     mplus-outline-fonts.githubRelease
     dina-font
     proggyfonts
-    (nerdfonts.override {fonts = ["FiraCode" "DroidSansMono" "JetBrainsMono"];})
+    (nerdfonts.override { fonts = [ "FiraCode" "DroidSansMono" "JetBrainsMono" ]; })
   ];
 }

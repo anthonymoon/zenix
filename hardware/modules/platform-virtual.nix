@@ -1,8 +1,7 @@
-{
-  config,
-  lib,
-  pkgs,
-  ...
+{ config
+, lib
+, pkgs
+, ...
 }: {
   # Virtual platform configuration (auto-detected)
   boot = {
@@ -12,8 +11,8 @@
       "virtio_net"
       "virtio_blk"
     ];
-    kernelModules = ["virtio_balloon"];
-    kernelParams = ["console=ttyS0"];
+    kernelModules = [ "virtio_balloon" ];
+    kernelParams = [ "console=ttyS0" ];
   };
 
   # VM services

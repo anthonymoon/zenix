@@ -1,9 +1,8 @@
 # System-wide performance optimizations for NVMe and modern hardware
-{
-  config,
-  lib,
-  pkgs,
-  ...
+{ config
+, lib
+, pkgs
+, ...
 }: {
   # ZRAM swap configuration (16GB compressed)
   zramSwap = {
@@ -206,7 +205,7 @@
     # Store optimization
     optimise = {
       automatic = lib.mkDefault true;
-      dates = ["weekly"];
+      dates = [ "weekly" ];
     };
   };
 
@@ -290,7 +289,7 @@
     initrd = {
       # Compress initrd with fast algorithm
       compressor = "zstd";
-      compressorArgs = ["-19" "-T0"]; # High compression, all threads
+      compressorArgs = [ "-19" "-T0" ]; # High compression, all threads
 
       # Optimize module loading
       availableKernelModules = [

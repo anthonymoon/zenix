@@ -1,8 +1,7 @@
-{
-  config,
-  pkgs,
-  lib,
-  ...
+{ config
+, pkgs
+, lib
+, ...
 }: {
   # Hostname
   networking.hostName = "nixos"; # Change this to your preferred hostname
@@ -19,8 +18,8 @@
   services.resolved = {
     enable = true;
     dnssec = "false";
-    domains = ["~."];
-    fallbackDns = ["94.140.14.14" "94.140.15.15"];
+    domains = [ "~." ];
+    fallbackDns = [ "94.140.14.14" "94.140.15.15" ];
     llmnr = "true";
     extraConfig = ''
       DNSStubListener=no
@@ -83,7 +82,7 @@
         networkConfig = {
           Address = "10.10.10.10/23";
           Gateway = "10.10.10.1";
-          DNS = ["94.140.14.14" "94.140.15.15"];
+          DNS = [ "94.140.14.14" "94.140.15.15" ];
           IPForward = "ipv4";
           IPMasquerade = "ipv4";
           LLDP = true;
@@ -136,7 +135,7 @@
   };
 
   # DNS configuration
-  networking.nameservers = ["94.140.14.14" "94.140.15.15"];
+  networking.nameservers = [ "94.140.14.14" "94.140.15.15" ];
 
   # Enable LLDP
   services.lldpd.enable = true;
@@ -145,5 +144,5 @@
   # networking.wireless.enable = true;
 
   # Additional network optimizations
-  boot.kernelModules = ["tcp_bbr"];
+  boot.kernelModules = [ "tcp_bbr" ];
 }
