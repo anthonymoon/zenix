@@ -11,8 +11,6 @@
     blacklistedKernelModules = [ "nouveau" ];
   };
 
-  services.xserver.videoDrivers = lib.mkBefore [ "nvidia" ];
-
   hardware.nvidia = {
     modesetting.enable = lib.mkDefault true;
     powerManagement.enable = lib.mkDefault true;

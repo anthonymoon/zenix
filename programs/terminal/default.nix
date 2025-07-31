@@ -5,10 +5,8 @@
 }: {
   environment.systemPackages = with pkgs; [
     # Terminal emulators
-    alacritty
     kitty
-    wezterm
-    foot
+    ghostty
 
     # Terminal multiplexers
     tmux

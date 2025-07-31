@@ -4,6 +4,9 @@
 , ...
 }: {
   # Minimal base configuration for all systems
+  imports = [
+    ./packages.nix  # Core packages for all systems
+  ];
 
   # Locale settings
   time.timeZone = lib.mkDefault "UTC";

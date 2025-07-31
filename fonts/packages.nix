@@ -17,21 +17,17 @@
       terminus_font
       inconsolata
 
-      # Programming fonts
-      (nerdfonts.override {
-        fonts = [
-          "JetBrainsMono"
-          "FiraCode"
-          "DroidSansMono"
-          "Hack"
-          "SourceCodePro"
-          "RobotoMono"
-          "UbuntuMono"
-          "DejaVuSansMono"
-          "Iosevka"
-          "CascadiaCode"
-        ];
-      })
+      # Programming fonts (nerd fonts)
+      nerd-fonts.jetbrains-mono
+      nerd-fonts.fira-code
+      nerd-fonts.droid-sans-mono
+      nerd-fonts.hack
+      nerd-fonts.sauce-code-pro
+      nerd-fonts.roboto-mono
+      nerd-fonts.ubuntu-mono
+      nerd-fonts.dejavu-sans-mono
+      nerd-fonts.iosevka
+      nerd-fonts.caskaydia-cove
 
       # Powerline fonts
       powerline-fonts

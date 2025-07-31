@@ -15,7 +15,7 @@
   services.getty.autologinUser = null;
 
   # Disable sound (sound.enable is deprecated in NixOS 24.11+)
-  hardware.pulseaudio.enable = false;
+  services.pulseaudio.enable = false;
 
   # Disable unnecessary hardware support
   hardware = {

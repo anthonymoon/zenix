@@ -7,12 +7,9 @@
   programs.niri.enable = true;
 
   # Wayland session requirements
-  services.xserver = {
+  services.xserver.displayManager.gdm = {
     enable = true;
-    displayManager.gdm = {
-      enable = true;
-      wayland = true;
-    };
+    wayland = true;
   };
 
   # Essential packages for Niri

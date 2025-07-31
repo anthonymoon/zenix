@@ -92,7 +92,6 @@
     wget
     which
     xfsprogs
-    xterm
     zip
     zsh
 

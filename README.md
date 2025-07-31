@@ -1,6 +1,6 @@
-# NixOS Multi-Host Configuration with Disko-Install
+# Zenix - Modular NixOS Configuration Framework
 
-A comprehensive NixOS configuration framework with automated disk management, hardware auto-detection, and performance optimizations.
+A sophisticated, modular NixOS configuration system featuring dynamic hardware detection, flexible profile composition, and optimized performance settings.
 
 ## 🚀 Features
 

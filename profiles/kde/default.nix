@@ -3,9 +3,11 @@
 , pkgs
 , ...
 }: {
-  # Enable X11 and Plasma 6
-  services.xserver.enable = true;
-  services.displayManager.sddm.enable = true;
+  # Enable Plasma 6 with Wayland
+  services.displayManager.sddm = {
+    enable = true;
+    wayland.enable = true;
+  };
   services.desktopManager.plasma6.enable = true;
 
   # Basic KDE packages - minimal set to avoid package conflicts

@@ -11,8 +11,6 @@
     ];
   };
 
-  services.xserver.videoDrivers = lib.mkBefore [ "amdgpu" ];
-
   hardware.graphics = {
     enable = true;
     enable32Bit = lib.mkDefault true;

@@ -6,8 +6,6 @@
   # Intel GPU configuration (auto-detected)
   boot.initrd.kernelModules = [ "i915" ];
 
-  services.xserver.videoDrivers = lib.mkBefore [ "modesetting" ];
-
   hardware.opengl = {
     enable = true;
     driSupport = true;

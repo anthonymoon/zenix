@@ -55,7 +55,7 @@
     enableAllFirmware = lib.mkForce false;
     graphics.enable = lib.mkForce false;
     bluetooth.enable = lib.mkForce false;
-    pulseaudio.enable = lib.mkForce false;
+    # pulseaudio.enable = lib.mkForce false;  # This is a service, not hardware
   };
 
   # Override problematic settings for test environment
