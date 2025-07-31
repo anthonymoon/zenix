@@ -50,6 +50,7 @@
       src = ./.;
       hooks = {
         alejandra.enable = true;
+        nixfmt.enable = true;
         statix.enable = true;
         deadnix.enable = true;
 
@@ -258,6 +259,7 @@
         nix-output-monitor
         nvd
         alejandra
+        nixfmt-rfc-style
         statix
         deadnix
 
